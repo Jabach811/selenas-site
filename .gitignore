@@ -1,0 +1,13 @@
+# local tooling / drafts
+.claude/
+_archive/
+
+# private working material — not for a public site
+Assets/source/
+Assets/cherry-avatar-style-panel-*.png
+*.docx
+
+# OS / OneDrive junk
+desktop.ini
+Thumbs.db
+.DS_Store
