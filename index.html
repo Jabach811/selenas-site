@@ -93,6 +93,21 @@
     background:
       linear-gradient(0deg, #000 0%, rgba(0,0,0,0) 14%),
       radial-gradient(120% 90% at 50% 50%, transparent 56%, rgba(0,0,0,.5) 100%); }
+  @media(max-width:760px){
+    .stage::before{ content:""; position:absolute; inset:0; z-index:0; pointer-events:none;
+      background:url("Assets/southern-bloom-scroll-background-v1.png") center bottom/cover no-repeat;
+      opacity:var(--mobile-hero-bg,0); will-change:opacity; }
+    .filmframe{ width:100vw; height:100vh; height:100svh; aspect-ratio:auto; background:transparent; z-index:1; }
+    .herofilm{ display:none; }
+    .filmframe::after{
+      background:
+        linear-gradient(0deg, #000 0%, rgba(0,0,0,0) 18%),
+        radial-gradient(118% 92% at 50% 46%, transparent 48%, rgba(0,0,0,.5) 100%);
+    }
+    .filmframe .veil{
+      background:radial-gradient(72% 56% at 50% 49%, rgba(6,3,5,.92) 0%, rgba(6,3,5,.74) 34%, rgba(6,3,5,.28) 62%, transparent 86%);
+    }
+  }
   .wordmark{ position:absolute; inset:0; z-index:4; display:flex; flex-direction:column; align-items:center; justify-content:center;
     text-align:center; padding:0 24px; pointer-events:none; opacity:0; will-change:opacity,transform; }
   .wordmark .eyebrow{ margin-bottom:22px; text-shadow:0 1px 18px rgba(0,0,0,.9); }
@@ -280,10 +295,10 @@
       linear-gradient(90deg, var(--ink-2) 0%, rgba(34,18,25,0) 48%),
       linear-gradient(0deg,  rgba(34,18,25,.85), rgba(34,18,25,0) 30%),
       linear-gradient(180deg, rgba(34,18,25,.6),  rgba(34,18,25,0) 24%); }
-  .slide .cap-eyebrow{ font-family:var(--mono); font-size:11px; letter-spacing:.28em; text-transform:uppercase; color:var(--blush); position:relative; z-index:3; }
   .slide h3{ position:relative; z-index:3; font-family:var(--serif); font-weight:400; font-style:italic; font-size:clamp(1.8rem,4vw,2.8rem);
-    line-height:1.05; color:#fff; margin:10px 0 8px; text-shadow:0 2px 20px rgba(0,0,0,.5); }
+    line-height:1.05; color:#fff; margin:0 0 12px; text-shadow:0 2px 20px rgba(0,0,0,.5); }
   .slide p{ position:relative; z-index:3; max-width:min(32ch,54%); color:rgba(255,255,255,.85); font-size:15px; line-height:1.55; text-shadow:0 1px 10px rgba(0,0,0,.5); }
+  .slide p span{ display:block; }
   @media(max-width:620px){
     .slide .ph{ width:100%; }
     .slide .ph::after{ background:linear-gradient(0deg, rgba(15,9,12,.94) 6%, rgba(15,9,12,.18) 48%, rgba(15,9,12,.5) 100%); }
@@ -507,21 +522,18 @@
     <div class="slidebox" id="show" data-i="0">
       <div class="slide on" data-s="0">
         <div class="ph"><img src="Assets/cherry-avatar-leather.png" alt="Cherry, standing tall in a leather jacket" /></div>
-        <span class="cap-eyebrow">Theme 01</span>
         <h3>Resilience</h3>
-        <p>Women who hit the floor and decide the floor isn't where the story ends.</p>
+        <p><span>Women who hit the floor</span> <span>and rise with their shine intact.</span></p>
       </div>
       <div class="slide" data-s="1">
         <div class="ph"><img src="Assets/cherry-avatar-porch.png" alt="Cherry on a Southern porch among magnolias" /></div>
-        <span class="cap-eyebrow">Theme 02</span>
         <h3>Southern wit</h3>
-        <p>Sharp tongues, warm hearts, and the kind of humor that gets you through anything.</p>
+        <p><span>Sharp tongues, warm hearts,</span> <span>and humor that carries the hard parts.</span></p>
       </div>
       <div class="slide" data-s="2">
         <div class="ph"><img src="Assets/cherry-avatar-book.png" alt="Cherry in a gown at sunset, holding a book" /></div>
-        <span class="cap-eyebrow">Theme 03</span>
         <h3>Second chances</h3>
-        <p>Because the bounce back is always the best part of the story.</p>
+        <p><span>Messy choices, open doors,</span> <span>and the grace to begin again.</span></p>
       </div>
       <div class="dots" id="dots">
         <button class="dot on" data-d="0" aria-label="Slide 1"></button>
@@ -646,6 +658,7 @@ gsap.registerPlugin(ScrollTrigger);
 /* hero film — scroll-scrubbed video + wordmark reveal */
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
 const film=document.getElementById('herofilm');
+const heroStage=document.querySelector('#hero .stage');
 const veil=document.getElementById('veil');
 const wordmark=document.querySelector('.wordmark');
 const subline=document.getElementById('subline'), scrollcue=document.getElementById('scrollcue');
@@ -668,15 +681,17 @@ if(canScrub){
 film.addEventListener('loadedmetadata', ()=>{ filmDur=film.duration||5; ScrollTrigger.refresh(); setHero(ScrollTrigger.getById('hero')?.progress||0); });
 
 function setHero(p){
+  heroStage.style.setProperty('--mobile-hero-bg', clamp(p/0.24,0,1));
   if(canScrub && film.readyState>=1){
     const t=clamp(p,0,1)*filmDur;
     if(Math.abs(t-lastT)>0.008){ film.currentTime=t; lastT=t; }
   }
-  const w=clamp((p-0.46)/0.22,0,1);          // wordmark blooms in over the back half
+  const mobileHero = matchMedia('(max-width:760px)').matches;
+  const w=mobileHero ? clamp((p-0.24)/0.24,0,1) : clamp((p-0.46)/0.22,0,1);          // wordmark blooms in over the back half
   wordmark.style.opacity=w;
   wordmark.style.transform=`translateY(${(1-w)*22}px)`;
-  veil.style.opacity=clamp((p-0.12)/0.22,0,1);   // fully seated before the video's text appears (~p .5)
-  sublines.forEach((ln,i)=> ln.classList.toggle('show', p>sublineAt[i]));
+  veil.style.opacity=mobileHero ? clamp((p-0.18)/0.22,0,.62) : clamp((p-0.12)/0.22,0,1);   // fully seated before the video's text appears (~p .5)
+  sublines.forEach((ln,i)=> ln.classList.toggle('show', p>(mobileHero ? sublineAt[i]-0.24 : sublineAt[i])));
   scrollcue.style.opacity = p>0.05 ? 0 : 1;
 }
 ScrollTrigger.create({ id:'hero', trigger:'#hero', start:'top top', end:'bottom bottom', scrub:true, onUpdate:self=>setHero(self.progress) });
