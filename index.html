@@ -653,11 +653,22 @@ const sublines=[...subline.querySelectorAll('.ln')];
 const sublineAt=[0.62,0.72,0.82];
 
 let filmDur=5, lastT=-1;
-film.pause();
+/* Seeking a paused <video> doesn't paint frames on touch browsers (esp. iOS Safari),
+   so the scroll-scrub leaves the hero blank on phones. Only scrub where there's a real
+   pointer; on touch, play the film as a muted inline loop instead. */
+const canScrub = matchMedia('(pointer: fine)').matches;
+if(canScrub){
+  film.pause();
+}else{
+  film.loop = true;
+  const startFilm = ()=> film.play().catch(()=>{});
+  startFilm();
+  addEventListener('touchstart', startFilm, { once:true, passive:true });
+}
 film.addEventListener('loadedmetadata', ()=>{ filmDur=film.duration||5; ScrollTrigger.refresh(); setHero(ScrollTrigger.getById('hero')?.progress||0); });
 
 function setHero(p){
-  if(film.readyState>=1){
+  if(canScrub && film.readyState>=1){
     const t=clamp(p,0,1)*filmDur;
     if(Math.abs(t-lastT)>0.008){ film.currentTime=t; lastT=t; }
   }
