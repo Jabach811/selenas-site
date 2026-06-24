@@ -22,6 +22,9 @@
     --c-50:rgba(244,233,222,.54); --c-30:rgba(244,233,222,.32);
     --c-12:rgba(217,184,120,.12); --c-18:rgba(217,184,120,.18);
     --gold:#d9b878; --gold-deep:#c09a4e; --rose:#d98a96; --blush:#f6d4d0;
+    --btn-text:#4d1622; /* deep oxblood — high-contrast button label */
+    --foil:linear-gradient(135deg,#c09a4e 0%,#e7c986 38%,#f6d4d0 52%,#e7c986 66%,#c09a4e 100%);
+    --foil-streak:linear-gradient(115deg, transparent 32%, rgba(255,255,255,.55) 46%, transparent 60%);
     --serif:"Fraunces",Georgia,serif;
     --sans:"Hanken Grotesk",system-ui,sans-serif;
     --mono:"Space Grotesk","Hanken Grotesk",sans-serif;
@@ -33,6 +36,13 @@
     font-family:var(--sans); color:var(--cream); background:var(--ink);
     overflow-x:hidden;
   }
+  /* cross-page fade — see page-transition.js */
+  @media (prefers-reduced-motion: no-preference){
+    body{ animation:pageIn .85s ease both; }
+    body.is-leaving{ animation:pageOut .36s ease forwards; }
+  }
+  @keyframes pageIn{ from{ opacity:0; } to{ opacity:1; } }
+  @keyframes pageOut{ from{ opacity:1; } to{ opacity:0; } }
   ::selection{ background:var(--gold); color:var(--ink); }
   ::-webkit-scrollbar{ width:10px; } ::-webkit-scrollbar-track{ background:var(--ink); }
   ::-webkit-scrollbar-thumb{ background:rgba(217,184,120,.2); border-radius:999px; border:2px solid var(--ink); }
@@ -59,19 +69,29 @@
   .site-nav a:not(.cta){ font-family:var(--mono); font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--c-50); text-decoration:none; position:relative; transition:color .3s ease; }
   .site-nav a:not(.cta):hover{ color:var(--gold); }
   @media(max-width:760px){ .site-nav a:not(.cta){ display:none; } }
-  .cta{ font-family:var(--mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase; text-decoration:none;
-    border:1px solid var(--c-18); color:var(--gold); padding:9px 18px; border-radius:999px; transition:background .3s ease, color .3s ease; }
-  .cta:hover{ background:var(--gold); color:var(--ink); }
+  .cta{ position:relative; overflow:hidden; font-family:var(--mono); font-size:12px; font-weight:500; letter-spacing:.14em; text-transform:uppercase; text-decoration:none;
+    color:var(--btn-text); padding:9px 18px; border-radius:999px; border:none;
+    background:var(--foil-streak) -160% 0 / 260% 100% no-repeat, var(--foil);
+    box-shadow:0 8px 18px -10px rgba(217,184,120,.55), inset 0 2px 1px rgba(255,255,255,.6), inset 0 -2px 2px rgba(120,86,30,.4);
+    animation:foilSweepBg 3.4s ease-in-out infinite;
+    transition:transform .3s ease, box-shadow .3s ease; }
+  .cta:hover{ transform:translateY(-1px); box-shadow:0 12px 22px -10px rgba(217,184,120,.7), inset 0 2px 1px rgba(255,255,255,.65), inset 0 -2px 2px rgba(120,86,30,.4); }
 
   /* shared button */
-  .btn{ display:inline-flex; align-items:center; gap:11px; font-family:var(--mono);
-    font-size:13px; letter-spacing:.12em; text-transform:uppercase; text-decoration:none;
-    background:var(--gold); color:var(--ink); padding:15px 28px; border-radius:999px; cursor:pointer; border:none;
-    transition:transform .3s cubic-bezier(.2,.7,.2,1), background .3s ease; }
-  .btn:hover{ transform:translateY(-2px); background:var(--blush); }
+  .btn{ position:relative; overflow:hidden; display:inline-flex; align-items:center; gap:11px; font-family:var(--mono);
+    font-size:13px; font-weight:500; letter-spacing:.12em; text-transform:uppercase; text-decoration:none;
+    color:var(--btn-text); padding:15px 28px; border-radius:999px; cursor:pointer; border:none;
+    background:var(--foil-streak) -160% 0 / 260% 100% no-repeat, var(--foil);
+    box-shadow:0 10px 24px -10px rgba(217,184,120,.6), inset 0 2px 1px rgba(255,255,255,.65),
+      inset 0 -2px 2px rgba(120,86,30,.45), inset 1px 0 1px rgba(255,255,255,.25), inset -1px 0 1px rgba(120,86,30,.3);
+    animation:foilSweepBg 3.4s ease-in-out infinite;
+    transition:transform .3s cubic-bezier(.2,.7,.2,1), box-shadow .3s ease; }
+  .btn:hover{ transform:translateY(-2px);
+    box-shadow:0 16px 30px -12px rgba(217,184,120,.75), inset 0 2px 1px rgba(255,255,255,.7), inset 0 -2px 2px rgba(120,86,30,.4); }
   .btn svg{ transition:transform .3s ease; } .btn:hover svg{ transform:translateX(4px); }
-  .btn.ghost{ background:transparent; color:var(--gold); border:1px solid var(--c-18); }
-  .btn.ghost:hover{ background:var(--gold); color:var(--ink); }
+  .btn.ghost{ background:transparent; color:var(--gold); border:1px solid var(--c-18); box-shadow:none; animation:none; }
+  .btn.ghost:hover{ background:var(--gold); color:var(--btn-text); }
+  @keyframes foilSweepBg{ 0%{ background-position:-160% 0, 0 0; } 60%,100%{ background-position:260% 0, 0 0; } }
 
   .eyebrow{ display:inline-flex; align-items:center; gap:14px; font-family:var(--mono);
     font-size:11px; font-weight:600; letter-spacing:.32em; text-transform:uppercase; color:var(--gold); }
@@ -195,9 +215,21 @@
   .bs-foot{ margin-top:26px; display:flex; flex-direction:column; align-items:center; text-align:center; gap:13px; max-width:340px; }
   .bs-tag{ font-family:var(--mono); font-size:11px; letter-spacing:.26em; text-transform:uppercase; color:var(--blush); }
   .bs-blurb{ font-size:14px; line-height:1.55; color:var(--c-70); font-weight:300; }
-  .bs-buy{ margin-top:4px; font-family:var(--mono); font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink); background:var(--gold);
-    padding:12px 22px; border-radius:999px; text-decoration:none; transition:background .25s ease, transform .25s ease; }
-  .bs-buy:hover{ background:var(--blush); transform:translateY(-2px); }
+  /* foil pill — the money CTA, beveled gold with a slow shine sweep */
+  .bs-buy{ position:relative; overflow:hidden; margin-top:6px; display:inline-flex; align-items:center; gap:10px;
+    font-family:var(--mono); font-size:12.5px; font-weight:500; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--btn-text); text-decoration:none; padding:15px 28px; border-radius:999px;
+    background:linear-gradient(135deg,#c09a4e 0%,#e7c986 38%,#f6d4d0 52%,#e7c986 66%,#c09a4e 100%);
+    box-shadow:0 10px 24px -10px rgba(217,184,120,.6), inset 0 2px 1px rgba(255,255,255,.65),
+      inset 0 -2px 2px rgba(120,86,30,.45), inset 1px 0 1px rgba(255,255,255,.25), inset -1px 0 1px rgba(120,86,30,.3);
+    transition:transform .3s cubic-bezier(.2,.7,.2,1), box-shadow .3s ease; }
+  .bs-buy:hover{ transform:translateY(-2px);
+    box-shadow:0 16px 30px -12px rgba(217,184,120,.75), inset 0 2px 1px rgba(255,255,255,.7), inset 0 -2px 2px rgba(120,86,30,.4); }
+  .bs-buy .shine{ position:absolute; top:0; bottom:0; left:0; width:40%; pointer-events:none;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.65),transparent); animation:foilShine 3.4s ease-in-out infinite; }
+  .bs-buy svg, .bs-buy .lbl{ position:relative; }
+  @keyframes foilShine{ 0%{ transform:translateX(-130%) skewX(-18deg); } 60%,100%{ transform:translateX(260%) skewX(-18deg); } }
+  @media(prefers-reduced-motion:reduce){ .bs-buy .shine{ animation:none; opacity:0; } .btn, .cta{ animation:none; } }
 
   .bs-1:checked ~ .bs-stage li:nth-child(1),
   .bs-2:checked ~ .bs-stage li:nth-child(2),
@@ -260,10 +292,15 @@
   }
 
   /* ===== read-the-first-chapter link (carousel) ===== */
-  .bs-chapter{ font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase;
-    color:var(--c-70); text-decoration:none; border-bottom:1px solid var(--c-18); padding-bottom:3px;
-    transition:color .25s ease, border-color .25s ease; }
-  .bs-chapter:hover{ color:var(--gold); border-color:var(--gold); }
+  .bs-chapter{ display:inline-flex; align-items:center; gap:9px; font-family:var(--mono); font-size:11px; font-weight:500;
+    letter-spacing:.14em; text-transform:uppercase; color:var(--blush); text-decoration:none;
+    padding:10px 18px; border-radius:999px; border:1px solid rgba(217,138,150,.45); background:rgba(217,138,150,.07);
+    transition:background .3s ease, border-color .3s ease, color .3s ease, box-shadow .3s ease, transform .3s cubic-bezier(.2,.7,.2,1); }
+  .bs-chapter:hover{ color:#fff; border-color:var(--rose); background:rgba(217,138,150,.18);
+    transform:translateY(-2px); box-shadow:0 12px 24px -12px rgba(217,138,150,.6); }
+  .bs-chapter .bk{ flex:none; }
+  .bs-chapter .arr{ flex:none; transition:transform .3s ease; }
+  .bs-chapter:hover .arr{ transform:translateX(4px); }
 
   /* ===== Word travels fast (reviews marquee) ===== */
   .reviews{ overflow:hidden; padding-bottom:clamp(70px,11vh,120px); }
@@ -284,7 +321,8 @@
   /* ===== Chapter 5 — slideshow ===== */
   .show-wrap{ max-width:1120px; margin:0 auto; padding:44px clamp(24px,6vw,80px) clamp(80px,12vh,140px); }
   .slidebox{ position:relative; width:100%; max-width:880px; margin:0 auto; aspect-ratio:16/10; border-radius:18px; overflow:hidden;
-    border:1px solid var(--c-12); background:linear-gradient(155deg, var(--ink-2) 0%, var(--plum) 100%); }
+    border:1px solid var(--c-12); background:linear-gradient(155deg, var(--ink-2) 0%, var(--plum) 100%);
+    cursor:pointer; user-select:none; touch-action:pan-y; }
   .slide{ position:absolute; inset:0; opacity:0; transition:opacity .7s ease; display:flex; flex-direction:column; justify-content:flex-end;
     padding:clamp(28px,5vw,52px); }
   .slide.on{ opacity:1; }
@@ -306,8 +344,8 @@
   }
   .dots{ position:absolute; bottom:18px; left:50%; transform:translateX(-50%); z-index:4; display:flex; gap:7px;
     background:rgba(0,0,0,.3); padding:7px 12px; border-radius:999px; }
-  .dot{ width:8px; height:8px; border-radius:999px; background:rgba(255,255,255,.45); border:none; cursor:pointer; transition:all .3s ease; padding:0; }
-  .dot.on{ width:22px; background:#fff; }
+  .dot{ width:10px; height:10px; border-radius:999px; background:rgba(255,255,255,.45); border:none; cursor:pointer; transition:all .3s ease; padding:0; }
+  .dot.on{ width:24px; background:#fff; }
 
   /* ===== Chapter 6 — circle / newsletter ===== */
   .circle{ padding:clamp(80px,12vh,150px) clamp(24px,6vw,80px); display:flex; justify-content:center; }
@@ -461,8 +499,8 @@
         <div class="bs-foot">
           <span class="bs-tag">Book One · Where It Started</span>
           <p class="bs-blurb">Notebooks of poems and songs became characters and stories — and a debut readers couldn't put down.</p>
-          <a class="bs-buy" href="#">Buy on Amazon</a>
-          <a class="bs-chapter" href="#">Read the first chapter →</a>
+          <a class="bs-buy" href="#"><span class="shine"></span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3h2.2l2.3 12.2a1.6 1.6 0 0 0 1.6 1.3h8.7a1.6 1.6 0 0 0 1.6-1.2L21.5 7H6.2"/></svg><span class="lbl">Buy on Amazon</span></a>
+          <a class="bs-chapter" href="read/a-little-bit-of-tail.html"><svg class="bk" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.6C10.4 5.1 7.9 4.3 4 4.3v13c3.9 0 6.4.8 8 2.3 1.6-1.5 4.1-2.3 8-2.3v-13c-3.9 0-6.4.8-8 2.3Zm0 0v13"/></svg><span>Read the first chapter</span><svg class="arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         </div>
       </li>
       <li>
@@ -470,8 +508,8 @@
         <div class="bs-foot">
           <span class="bs-tag">Book Two · The Story Continues</span>
           <p class="bs-blurb">Life-changing decisions, down-home wit, and consequences nobody saw coming.</p>
-          <a class="bs-buy" href="#">Buy on Amazon</a>
-          <a class="bs-chapter" href="#">Read the first chapter →</a>
+          <a class="bs-buy" href="#"><span class="shine"></span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3h2.2l2.3 12.2a1.6 1.6 0 0 0 1.6 1.3h8.7a1.6 1.6 0 0 0 1.6-1.2L21.5 7H6.2"/></svg><span class="lbl">Buy on Amazon</span></a>
+          <a class="bs-chapter" href="read/heads-over-tails.html"><svg class="bk" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.6C10.4 5.1 7.9 4.3 4 4.3v13c3.9 0 6.4.8 8 2.3 1.6-1.5 4.1-2.3 8-2.3v-13c-3.9 0-6.4.8-8 2.3Zm0 0v13"/></svg><span>Read the first chapter</span><svg class="arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         </div>
       </li>
       <li>
@@ -479,8 +517,8 @@
         <div class="bs-foot">
           <span class="bs-tag">Book Three · The Latest</span>
           <p class="bs-blurb">Sharp, fresh light on the topics polite company won't touch — and the grace to grow through them. The newest ride, and readers say it's her boldest yet.</p>
-          <a class="bs-buy" href="#">Buy on Amazon</a>
-          <a class="bs-chapter" href="#">Read the first chapter →</a>
+          <a class="bs-buy" href="#"><span class="shine"></span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3h2.2l2.3 12.2a1.6 1.6 0 0 0 1.6 1.3h8.7a1.6 1.6 0 0 0 1.6-1.2L21.5 7H6.2"/></svg><span class="lbl">Buy on Amazon</span></a>
+          <a class="bs-chapter" href="read/something-for-nothing.html"><svg class="bk" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.6C10.4 5.1 7.9 4.3 4 4.3v13c3.9 0 6.4.8 8 2.3 1.6-1.5 4.1-2.3 8-2.3v-13c-3.9 0-6.4.8-8 2.3Zm0 0v13"/></svg><span>Read the first chapter</span><svg class="arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         </div>
       </li>
     </ul>
@@ -730,10 +768,15 @@ lenis.on('scroll', ({scroll})=> nav.classList.toggle('scrolled', scroll>60));
   const slides=[...show.querySelectorAll('.slide')];
   const dots=[...document.getElementById('dots').querySelectorAll('.dot')];
   let i=0, timer;
-  function set(n){ slides[i].classList.remove('on'); dots[i].classList.remove('on'); i=n; slides[i].classList.add('on'); dots[i].classList.add('on'); }
-  function next(){ set((i+1)%slides.length); }
-  dots.forEach(d=>d.onclick=()=>{ set(+d.dataset.d); restart(); });
+  function set(n){ slides[i].classList.remove('on'); dots[i].classList.remove('on'); i=(n+slides.length)%slides.length; slides[i].classList.add('on'); dots[i].classList.add('on'); }
+  function next(){ set(i+1); }
+  function go(n){ set(n); restart(); }
   function restart(){ clearInterval(timer); timer=setInterval(next,5000); }
+  dots.forEach(d=>d.onclick=e=>{ e.stopPropagation(); go(+d.dataset.d); });
+  show.addEventListener('click', ()=> go(i+1));
+  let sx=null;
+  show.addEventListener('touchstart', e=>{ sx=e.touches[0].clientX; }, {passive:true});
+  show.addEventListener('touchend', e=>{ if(sx===null) return; const dx=e.changedTouches[0].clientX-sx; if(Math.abs(dx)>40) go(i+(dx<0?1:-1)); sx=null; });
   restart();
 })();
 
@@ -751,5 +794,6 @@ document.querySelectorAll('.qa button').forEach(btn=>{
 const spot=document.querySelector('.spotlight'); let raf;
 addEventListener('pointermove',e=>{ if(raf)return; raf=requestAnimationFrame(()=>{ spot.style.setProperty('--mx',e.clientX+'px'); spot.style.setProperty('--my',e.clientY+'px'); raf=null; }); },{passive:true});
 </script>
+<script src="page-transition.js"></script>
 </body>
 </html>
