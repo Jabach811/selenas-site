@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Novels by Cherry — Southern fiction for the women who bounce back</title>
+<meta name="description" content="The novels of Cherry — Southern fiction about falling hard, rising harder, and never losing your shine. A Little Bit of Tail, Heads Over Tails, and Something for Nothing." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Hanken+Grotesk:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<!-- smooth scroll + scroll-driven animation engine (same stack as the reference) -->
+<script src="https://unpkg.com/gsap@3/dist/gsap.min.js"></script>
+<script src="https://unpkg.com/gsap@3/dist/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lenis@1.3.17/dist/lenis.min.js"></script>
+
+<style>
+  :root{
+    --ink:#160f13; --ink-1:#1b1016; --ink-2:#221219; --plum:#2c1822;
+    --cream:#f4e9de;
+    --c-90:rgba(244,233,222,.92); --c-70:rgba(244,233,222,.72);
+    --c-50:rgba(244,233,222,.54); --c-30:rgba(244,233,222,.32);
+    --c-12:rgba(217,184,120,.12); --c-18:rgba(217,184,120,.18);
+    --gold:#d9b878; --gold-deep:#c09a4e; --rose:#d98a96; --blush:#f6d4d0;
+    --btn-text:#4d1622; /* deep oxblood — high-contrast button label */
+    --foil:linear-gradient(135deg,#c09a4e 0%,#e7c986 38%,#f6d4d0 52%,#e7c986 66%,#c09a4e 100%);
+    --foil-streak:linear-gradient(115deg, transparent 32%, rgba(255,255,255,.55) 46%, transparent 60%);
+    --serif:"Fraunces",Georgia,serif;
+    --sans:"Hanken Grotesk",system-ui,sans-serif;
+    --mono:"Space Grotesk","Hanken Grotesk",sans-serif;
+    color-scheme:dark;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+  body{
+    font-family:var(--sans); color:var(--cream); background:var(--ink);
+    overflow-x:hidden;
+  }
+  /* cross-page fade — see page-transition.js */
+  @media (prefers-reduced-motion: no-preference){
+    body{ animation:pageIn .85s ease both; }
+    body.is-leaving{ animation:pageOut .36s ease forwards; }
+  }
+  @keyframes pageIn{ from{ opacity:0; } to{ opacity:1; } }
+  @keyframes pageOut{ from{ opacity:1; } to{ opacity:0; } }
+  ::selection{ background:var(--gold); color:var(--ink); }
+  ::-webkit-scrollbar{ width:10px; } ::-webkit-scrollbar-track{ background:var(--ink); }
+  ::-webkit-scrollbar-thumb{ background:rgba(217,184,120,.2); border-radius:999px; border:2px solid var(--ink); }
+  :focus-visible{ outline:2px solid var(--gold); outline-offset:3px; border-radius:4px; }
+
+  /* ambient: grain + vignette + cursor spotlight */
+  body::after{ content:""; position:fixed; inset:0; pointer-events:none; z-index:9998; opacity:.045; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  body::before{ content:""; position:fixed; inset:0; pointer-events:none; z-index:9997;
+    background:radial-gradient(120% 90% at 50% 50%, transparent 55%, rgba(0,0,0,.5) 100%); }
+  .spotlight{ position:fixed; inset:0; pointer-events:none; z-index:9996; mix-blend-mode:screen;
+    background:radial-gradient(560px circle at var(--mx,50%) var(--my,50%), rgba(217,184,120,.05), transparent 70%); }
+  /* big displays: these full-screen blend layers re-composite over the whole surface on
+     every scrub frame + mouse move — drop them so the hero scrub stays smooth (they're
+     near-invisible at ~.05 opacity; laptops/standard monitors keep them) */
+  @media (min-width:1700px){
+    .spotlight{ display:none; }
+    body::after{ display:none; }
+  }
+
+  /* nav */
+  header.site{ position:fixed; top:0; left:0; right:0; z-index:100;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px clamp(20px,5vw,64px);
+    background:rgba(22,15,19,.5); backdrop-filter:saturate(160%) blur(20px);
+    border-bottom:1px solid transparent; transition:background .35s ease, border-color .35s ease, padding .35s ease; }
+  header.site.scrolled{ background:rgba(22,15,19,.78); border-bottom-color:var(--c-12); padding-top:13px; padding-bottom:13px; }
+  .brand{ font-family:var(--serif); font-size:20px; font-weight:500; color:var(--cream); text-decoration:none; font-variation-settings:"opsz" 36; }
+  .brand em{ font-style:italic; color:var(--gold); }
+  .site-nav{ display:flex; align-items:center; gap:clamp(14px,2.4vw,34px); }
+  .site-nav a:not(.cta){ font-family:var(--mono); font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--c-50); text-decoration:none; position:relative; transition:color .3s ease; }
+  .site-nav a:not(.cta):hover{ color:var(--gold); }
+  @media(max-width:760px){ .site-nav a:not(.cta){ display:none; } }
+  .cta{ position:relative; overflow:hidden; font-family:var(--mono); font-size:12px; font-weight:500; letter-spacing:.14em; text-transform:uppercase; text-decoration:none;
+    color:var(--btn-text); padding:9px 18px; border-radius:999px; border:none;
+    background:var(--foil-streak) -160% 0 / 260% 100% no-repeat, var(--foil);
+    box-shadow:0 8px 18px -10px rgba(217,184,120,.55), inset 0 2px 1px rgba(255,255,255,.6), inset 0 -2px 2px rgba(120,86,30,.4);
+    animation:foilSweepBg 3.4s ease-in-out infinite;
+    transition:transform .3s ease, box-shadow .3s ease; }
+  .cta:hover{ transform:translateY(-1px); box-shadow:0 12px 22px -10px rgba(217,184,120,.7), inset 0 2px 1px rgba(255,255,255,.65), inset 0 -2px 2px rgba(120,86,30,.4); }
+
+  /* shared button */
+  .btn{ position:relative; overflow:hidden; display:inline-flex; align-items:center; gap:11px; font-family:var(--mono);
+    font-size:13px; font-weight:500; letter-spacing:.12em; text-transform:uppercase; text-decoration:none;
+    color:var(--btn-text); padding:15px 28px; border-radius:999px; cursor:pointer; border:none;
+    background:var(--foil-streak) -160% 0 / 260% 100% no-repeat, var(--foil);
+    box-shadow:0 10px 24px -10px rgba(217,184,120,.6), inset 0 2px 1px rgba(255,255,255,.65),
+      inset 0 -2px 2px rgba(120,86,30,.45), inset 1px 0 1px rgba(255,255,255,.25), inset -1px 0 1px rgba(120,86,30,.3);
+    animation:foilSweepBg 3.4s ease-in-out infinite;
+    transition:transform .3s cubic-bezier(.2,.7,.2,1), box-shadow .3s ease; }
+  .btn:hover{ transform:translateY(-2px);
+    box-shadow:0 16px 30px -12px rgba(217,184,120,.75), inset 0 2px 1px rgba(255,255,255,.7), inset 0 -2px 2px rgba(120,86,30,.4); }
+  .btn svg{ transition:transform .3s ease; } .btn:hover svg{ transform:translateX(4px); }
+  .btn.ghost{ background:transparent; color:var(--gold); border:1px solid var(--c-18); box-shadow:none; animation:none; }
+  .btn.ghost:hover{ background:var(--gold); color:var(--btn-text); }
+  @keyframes foilSweepBg{ 0%{ background-position:-160% 0, 0 0; } 60%,100%{ background-position:260% 0, 0 0; } }
+
+  .eyebrow{ display:inline-flex; align-items:center; gap:14px; font-family:var(--mono);
+    font-size:11px; font-weight:600; letter-spacing:.32em; text-transform:uppercase; color:var(--gold); }
+  .eyebrow .line{ width:40px; height:1px; background:linear-gradient(90deg, transparent, var(--gold)); }
+
+  section.chapter{ position:relative; }
+
+  /* ===== Chapter 1 — hero film (scroll-scrubbed video) ===== */
+  .hero{ position:relative; height:480vh; background:#000; }
+  .stage{ position:sticky; top:0; height:100vh; overflow:hidden; background:#000;
+    display:flex; align-items:center; justify-content:center; }
+  /* film frame is locked to the video's native 16:9 — full-bleed, scales with width */
+  .filmframe{ position:relative; flex:none; width:100%; height:100vh; overflow:hidden; background:#000; }
+  .herofilm{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; background:#000;
+    transform:translateZ(0); will-change:transform; backface-visibility:hidden; }
+  /* this video bakes in its own title + a dark center clearing, so the veil only
+     lifts legibility for the supporting copy — never swallows the picture */
+  .filmframe .veil{ position:absolute; inset:0; pointer-events:none; opacity:0; z-index:3;
+    background:
+      linear-gradient(0deg, rgba(6,3,5,.78) 0%, rgba(6,3,5,0) 40%),
+      radial-gradient(70% 64% at 50% 52%, rgba(6,3,5,.34) 0%, rgba(6,3,5,0) 70%); }
+  .filmframe::after{ content:""; position:absolute; inset:0; pointer-events:none; z-index:2;
+    background:
+      linear-gradient(0deg, #000 0%, rgba(0,0,0,0) 18%),
+      radial-gradient(120% 90% at 50% 50%, transparent 58%, rgba(0,0,0,.5) 100%); }
+  @media(max-width:760px){
+    .stage::before{ content:""; position:absolute; inset:0; z-index:0; pointer-events:none;
+      background:url("Assets/southern-bloom-scroll-background-v1.png") center bottom/cover no-repeat;
+      opacity:var(--mobile-hero-bg,0); will-change:opacity; }
+    .filmframe{ width:100vw; height:100vh; height:100svh; aspect-ratio:auto; background:transparent; z-index:1; }
+    /* phones play the lighter 16:9 hero loop full-bleed (set in JS) instead of the desktop scrub */
+    .herofilm{ display:block; background:transparent; }
+    .filmframe::after{
+      background:
+        linear-gradient(0deg, #000 0%, rgba(0,0,0,0) 24%),
+        radial-gradient(118% 92% at 50% 46%, transparent 52%, rgba(0,0,0,.5) 100%);
+    }
+    /* portrait clips the video's centered baked title, so darken the center and
+       let the HTML wordmark below do the talking */
+    .filmframe .veil{
+      background:
+        radial-gradient(94% 60% at 50% 48%, rgba(6,3,5,1) 0%, rgba(6,3,5,.98) 48%, rgba(6,3,5,.45) 74%, transparent 92%),
+        linear-gradient(0deg, rgba(6,3,5,.7) 0%, rgba(6,3,5,0) 42%);
+    }
+  }
+  /* supporting copy sits in the lower third — the video's own "Novels by Cherry"
+     reveal owns the center, so the overlay never competes with it */
+  .wordmark{ position:absolute; inset:0; z-index:4; display:flex; flex-direction:column; align-items:center; justify-content:flex-end;
+    text-align:center; padding:0 24px clamp(74px,14vh,150px); pointer-events:none; opacity:0; will-change:opacity,transform; }
+  .wordmark .eyebrow{ margin-bottom:18px; text-shadow:0 1px 18px rgba(0,0,0,.9); }
+  /* desktop lets the video's own baked title carry the name; mobile (portrait) clips
+     that title, so we hide it there and surface this crisp HTML wordmark instead */
+  .name{ display:none; font-family:var(--serif); font-weight:300; font-variation-settings:"opsz" 144;
+    font-size:clamp(44px,13vw,96px); line-height:.9; letter-spacing:-.015em; white-space:nowrap;
+    margin-bottom:6px; text-shadow:0 2px 40px rgba(0,0,0,.92), 0 0 90px rgba(7,4,6,.85); }
+  .name em{ font-style:italic; color:var(--blush); }
+  .subline{ max-width:30ch; font-family:var(--serif); font-size:clamp(20px,2.5vw,30px);
+    line-height:1.32; color:var(--c-90); font-weight:400; letter-spacing:-.005em;
+    text-shadow:0 2px 24px rgba(15,9,12,.92); }
+  .subline .ln{ display:block; opacity:0; transform:translateY(12px);
+    transition:opacity .7s ease, transform .7s ease; }
+  .subline .ln.show{ opacity:1; transform:none; }
+  .subline em{ font-style:italic; color:var(--blush); }
+  /* the extra beat the user asked for — a quiet invitation under the tagline */
+  .invite{ margin-top:20px; font-family:var(--mono); font-size:12px; font-weight:500; letter-spacing:.26em;
+    text-transform:uppercase; color:var(--c-70); text-shadow:0 1px 14px rgba(0,0,0,.9);
+    opacity:0; transform:translateY(10px); transition:opacity .8s ease .15s, transform .8s ease .15s; }
+  .invite.show{ opacity:1; transform:none; }
+  .invite em{ font-style:normal; color:var(--gold); }
+  /* mobile: the video's baked title is clipped in portrait, so center the overlay
+     and let the HTML wordmark carry the name (placed after the base rules so it wins) */
+  @media(max-width:760px){
+    .name{ display:block; }
+    .wordmark{ justify-content:center; padding-bottom:24px; }
+    .wordmark .subline{ margin-top:18px; }
+  }
+  .scrollcue{ position:absolute; left:50%; bottom:32px; transform:translateX(-50%); z-index:5;
+    display:flex; flex-direction:column; align-items:center; gap:10px; color:var(--c-50);
+    font-family:var(--mono); font-size:11px; letter-spacing:.3em; text-transform:uppercase; transition:opacity .4s ease; }
+  .scrollcue .track{ width:1px; height:44px; background:linear-gradient(var(--gold), transparent); position:relative; overflow:hidden; }
+  .scrollcue .track::after{ content:""; position:absolute; top:0; left:0; right:0; height:14px; background:var(--gold);
+    animation:drip 2.2s cubic-bezier(.7,0,.3,1) infinite; }
+  @keyframes drip{ 0%{transform:translateY(-14px)} 100%{transform:translateY(44px)} }
+
+  /* ===== Chapter 2 — note from Cherry ===== */
+  .note{ position:relative; min-height:100vh; display:flex; align-items:center; gap:clamp(36px,6vw,80px);
+    padding:clamp(100px,16vh,180px) clamp(24px,6vw,90px);
+    background:linear-gradient(180deg, #000 0%, rgba(0,0,0,0) 22%),
+      linear-gradient(105deg, var(--ink) 0%, var(--ink-1) 40%, var(--plum) 100%); overflow:hidden; }
+  .note .inner{ position:relative; z-index:2; flex:1 1 auto; max-width:560px; display:flex; flex-direction:column; gap:26px; }
+
+  /* portrait — emerges from the dark as the closing beat of the note */
+  .note-portrait{ position:relative; z-index:2; flex:0 0 auto; margin:0;
+    width:clamp(248px,28vw,380px); aspect-ratio:3/4; max-height:78vh;
+    border-radius:14px; overflow:hidden; clip-path:inset(0 0 0 0);
+    box-shadow:0 40px 70px -38px rgba(0,0,0,.9); }
+  .note-portrait img{ width:100%; height:100%; object-fit:cover; object-position:center 26%; display:block;
+    filter:saturate(.9) brightness(.92) contrast(1.03);
+    animation:kenburns 22s ease-in-out infinite alternate; }
+  /* blend the photo's edges into the section instead of a hard rectangle */
+  .note-portrait::after{ content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+    background:
+      linear-gradient(90deg, rgba(22,15,19,.82), rgba(22,15,19,0) 30%),
+      linear-gradient(0deg, rgba(22,15,19,.9), rgba(22,15,19,0) 26%),
+      linear-gradient(180deg, rgba(22,15,19,.62), rgba(22,15,19,0) 22%),
+      linear-gradient(rgba(44,24,34,.2), rgba(44,24,34,.2)); }
+  @keyframes kenburns{ from{ transform:scale(1.0) translateY(0); } to{ transform:scale(1.07) translateY(-1.5%); } }
+  @media(prefers-reduced-motion:reduce){ .note-portrait img{ animation:none; } }
+  @media(max-width:780px){
+    .note{ flex-direction:column; align-items:flex-start; }
+    .note .inner{ max-width:none; }
+    .note-portrait{ align-self:center; width:min(340px,82%); }
+  }
+  .note h2{ font-family:var(--serif); font-style:italic; font-weight:400; font-size:clamp(2rem,4.4vw,3.4rem);
+    line-height:1.05; letter-spacing:-.025em; color:var(--cream); }
+  .note .lead{ font-family:var(--serif); font-weight:400; font-size:clamp(1.4rem,2.6vw,2.1rem);
+    line-height:1.25; letter-spacing:-.015em; color:var(--cream); max-width:30ch; }
+  .note p.body{ font-size:clamp(1rem,1.2vw,1.1rem); line-height:1.6; color:var(--c-70); max-width:46ch; font-weight:300; }
+  .note .row{ margin-top:8px; display:flex; align-items:center; gap:24px; flex-wrap:wrap; }
+  .note .sig{ font-family:var(--mono); font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--c-50); }
+
+  /* ===== generic section heading block ===== */
+  .head{ max-width:1120px; margin:0 auto; padding:clamp(80px,12vh,140px) clamp(24px,6vw,80px) 0; }
+  .head.center{ text-align:center; display:flex; flex-direction:column; align-items:center; }
+  .head h2{ font-family:var(--serif); font-weight:300; font-variation-settings:"opsz" 144;
+    font-size:clamp(2.25rem,5vw,3.75rem); line-height:1.0; letter-spacing:-.035em; color:var(--cream); margin:18px 0 16px; }
+  .head h2 em{ font-style:italic; color:var(--gold); }
+  .head p{ font-size:clamp(15px,1.6vw,17px); line-height:1.55; color:var(--c-70); max-width:56ch; font-weight:300; }
+  .head.center p{ margin-inline:auto; }
+
+  /* ===== Chapter 3 — novels selector slider (pure CSS radio) ===== */
+  .carousel{ padding-bottom:clamp(70px,11vh,120px); }
+  .bookslider{ width:100%; max-width:740px; margin:48px auto 0;
+    display:flex; flex-direction:column; align-items:center; text-align:center; }
+  .bs-radio{ position:absolute; left:-9999px; }
+
+  /* featured stage — covers cross-fade, stacked in one grid cell so the
+     container auto-sizes to the tallest book (no fixed heights to overflow) */
+  .bs-stage{ display:grid; justify-items:center; width:100%; margin:0; padding:0; list-style:none; }
+  .bs-stage li{ grid-column:1; grid-row:1; width:360px; max-width:90vw;
+    display:flex; flex-direction:column; align-items:center;
+    opacity:0; pointer-events:none; transform:scale(.96);
+    transition:opacity .55s ease, transform .6s cubic-bezier(.2,.7,.2,1); }
+  .bs-cover{ height:clamp(300px,40vh,360px); width:auto; max-width:100%; object-fit:contain;
+    filter:drop-shadow(0 26px 44px rgba(0,0,0,.6)); }
+
+  .bs-foot{ margin-top:26px; display:flex; flex-direction:column; align-items:center; text-align:center; gap:13px; max-width:340px; }
+  .bs-tag{ font-family:var(--mono); font-size:11px; letter-spacing:.26em; text-transform:uppercase; color:var(--blush); }
+  .bs-blurb{ font-size:14px; line-height:1.55; color:var(--c-70); font-weight:300; }
+  /* foil pill — the money CTA, beveled gold with a slow shine sweep */
+  .bs-buy{ position:relative; overflow:hidden; margin-top:6px; display:inline-flex; align-items:center; gap:10px;
+    font-family:var(--mono); font-size:12.5px; font-weight:500; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--btn-text); text-decoration:none; padding:15px 28px; border-radius:999px;
+    background:linear-gradient(135deg,#c09a4e 0%,#e7c986 38%,#f6d4d0 52%,#e7c986 66%,#c09a4e 100%);
+    box-shadow:0 10px 24px -10px rgba(217,184,120,.6), inset 0 2px 1px rgba(255,255,255,.65),
+      inset 0 -2px 2px rgba(120,86,30,.45), inset 1px 0 1px rgba(255,255,255,.25), inset -1px 0 1px rgba(120,86,30,.3);
+    transition:transform .3s cubic-bezier(.2,.7,.2,1), box-shadow .3s ease; }
+  .bs-buy:hover{ transform:translateY(-2px);
+    box-shadow:0 16px 30px -12px rgba(217,184,120,.75), inset 0 2px 1px rgba(255,255,255,.7), inset 0 -2px 2px rgba(120,86,30,.4); }
+  .bs-buy .shine{ position:absolute; top:0; bottom:0; left:0; width:40%; pointer-events:none;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.65),transparent); animation:foilShine 3.4s ease-in-out infinite; }
+  .bs-buy svg, .bs-buy .lbl{ position:relative; }
+  @keyframes foilShine{ 0%{ transform:translateX(-130%) skewX(-18deg); } 60%,100%{ transform:translateX(260%) skewX(-18deg); } }
+  @media(prefers-reduced-motion:reduce){ .bs-buy .shine{ animation:none; opacity:0; } .btn, .cta{ animation:none; } }
+
+  .bs-1:checked ~ .bs-stage li:nth-child(1),
+  .bs-2:checked ~ .bs-stage li:nth-child(2),
+  .bs-3:checked ~ .bs-stage li:nth-child(3){ opacity:1; pointer-events:auto; transform:scale(1); }
+
+  /* thumbnail row — the real covers, in miniature */
+  .bs-thumbs{ display:flex; justify-content:center; align-items:flex-end; gap:24px; margin-top:38px; }
+  .bs-thumb{ cursor:pointer; width:58px; height:84px; box-sizing:border-box;
+    background-size:contain; background-repeat:no-repeat; background-position:center bottom;
+    opacity:.4; filter:grayscale(.25);
+    transition:transform .3s cubic-bezier(.2,.7,.2,1), opacity .3s ease, filter .3s ease; }
+  .bs-thumb:hover{ opacity:.8; transform:translateY(-2px); }
+  .bs-t1{ background-image:url("Assets/albot-cover.png"); }
+  .bs-t2{ background-image:url("Assets/hot-cover.png"); }
+  .bs-t3{ background-image:url("Assets/sfn-cover.png"); }
+  .bs-1:checked ~ .bs-thumbs .bs-t1,
+  .bs-2:checked ~ .bs-thumbs .bs-t2,
+  .bs-3:checked ~ .bs-thumbs .bs-t3{ opacity:1; transform:translateY(-3px) scale(1.14);
+    filter:drop-shadow(0 8px 16px rgba(217,184,120,.4)); }
+  @media(max-width:575px){ .bs-stage li{ width:300px; } }
+
+  /* ===== Chapter 4 — her story (about) ===== */
+  .about{ max-width:1040px; margin:0 auto; padding:52px clamp(24px,6vw,80px) clamp(80px,12vh,140px);
+    display:grid; grid-template-columns:minmax(0,4fr) minmax(0,6fr); gap:clamp(34px,6vw,72px); align-items:center; }
+  @media(max-width:780px){ .about{ grid-template-columns:1fr; gap:32px; max-width:460px; } }
+  .about .portrait{ position:relative; border-radius:14px; overflow:hidden; border:1px solid var(--c-12);
+    box-shadow:0 34px 64px -34px rgba(0,0,0,.85); }
+  .about .portrait img{ display:block; width:100%; aspect-ratio:4/5; object-fit:cover; object-position:center top; }
+  .about h3{ font-family:var(--serif); font-style:italic; font-weight:400; font-size:clamp(1.9rem,3.6vw,2.7rem);
+    line-height:1.08; letter-spacing:-.02em; color:var(--cream); margin-bottom:22px; }
+  .about p{ color:var(--c-70); font-weight:300; line-height:1.75; font-size:16px; margin-bottom:16px; max-width:54ch; }
+  .about .sig{ display:inline-block; margin-top:8px; font-family:var(--serif); font-style:italic; color:var(--gold); font-size:20px;
+    transform-origin:left center; animation:sigGlow 3s ease-in-out infinite; }
+  @keyframes sigGlow{
+    0%,100%{ transform:scale(1); text-shadow:0 0 5px rgba(217,184,120,.2); }
+    50%{ transform:scale(1.035); text-shadow:0 0 14px rgba(217,184,120,.6), 0 0 28px rgba(217,184,120,.28); }
+  }
+  @media(prefers-reduced-motion:reduce){ .about .sig{ animation:none; text-shadow:0 0 10px rgba(217,184,120,.4); } }
+
+  /* ===== Statement band ===== */
+  .statement-band .pullquote{ margin-top:34px; font-family:var(--serif); font-style:italic; font-weight:400;
+    font-size:clamp(1.3rem,2.4vw,1.95rem); line-height:1.3; color:var(--gold); }
+  .statement-band .pullquote .cite{ display:block; margin-top:14px; font-family:var(--mono); font-style:normal;
+    font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--c-50); }
+
+  /* quote "writes" itself in left-to-right (ink reveal) when scrolled into view */
+  @property --ink{ syntax:"<percentage>"; inherits:false; initial-value:0%; }
+  .pullquote .qline{ display:inline-block; white-space:nowrap;
+    -webkit-mask-image:linear-gradient(90deg, #000 calc(var(--ink) - 4%), transparent var(--ink));
+    mask-image:linear-gradient(90deg, #000 calc(var(--ink) - 4%), transparent var(--ink)); }
+  .statement-band .head.in .qline{ animation:inkwrite 3.6s cubic-bezier(.5,.05,.2,1) .35s forwards; }
+  @keyframes inkwrite{ from{ --ink:0%; } to{ --ink:104%; } }
+  @media(max-width:620px){
+    .pullquote .qline{ white-space:normal; -webkit-mask-image:none; mask-image:none; }
+    .statement-band .head.in .qline{ animation:none; }
+  }
+  @media(prefers-reduced-motion:reduce){
+    .pullquote .qline{ -webkit-mask-image:none; mask-image:none; }
+    .statement-band .head.in .qline{ animation:none; }
+  }
+
+  /* ===== read-the-first-chapter link (carousel) ===== */
+  .bs-chapter{ display:inline-flex; align-items:center; gap:9px; font-family:var(--mono); font-size:11px; font-weight:500;
+    letter-spacing:.14em; text-transform:uppercase; color:var(--blush); text-decoration:none;
+    padding:10px 18px; border-radius:999px; border:1px solid rgba(217,138,150,.45); background:rgba(217,138,150,.07);
+    transition:background .3s ease, border-color .3s ease, color .3s ease, box-shadow .3s ease, transform .3s cubic-bezier(.2,.7,.2,1); }
+  .bs-chapter:hover{ color:#fff; border-color:var(--rose); background:rgba(217,138,150,.18);
+    transform:translateY(-2px); box-shadow:0 12px 24px -12px rgba(217,138,150,.6); }
+  .bs-chapter .bk{ flex:none; }
+  .bs-chapter .arr{ flex:none; transition:transform .3s ease; }
+  .bs-chapter:hover .arr{ transform:translateX(4px); }
+
+  /* ===== Word travels fast (reviews marquee) ===== */
+  .reviews{ overflow:hidden; padding-bottom:clamp(70px,11vh,120px); }
+  .marquee-wrap{ position:relative; margin-top:44px;
+    -webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
+    mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent); }
+  .marquee{ display:flex; gap:20px; width:max-content; padding:0 10px; animation:marq 48s linear infinite; }
+  .marquee:hover{ animation-play-state:paused; }
+  @keyframes marq{ to{ transform:translateX(-50%); } }
+  .review{ flex:none; width:340px; box-sizing:border-box; padding:26px 28px; border-radius:16px;
+    border:1px solid var(--c-12); background:linear-gradient(180deg, rgba(28,16,22,.8), rgba(22,15,19,.6)); }
+  .review .stars{ color:var(--gold); letter-spacing:.18em; font-size:13px; }
+  .review p{ margin:12px 0 14px; font-family:var(--serif); font-style:italic; font-size:1.08rem; line-height:1.5; color:var(--cream); }
+  .review cite{ font-family:var(--mono); font-style:normal; font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:var(--c-50); }
+  .swap-note{ text-align:center; margin-top:24px; font-family:var(--mono); font-size:11px; letter-spacing:.08em; color:var(--c-30); }
+  @media(prefers-reduced-motion:reduce){ .marquee{ animation:none; flex-wrap:wrap; width:auto; justify-content:center; } }
+
+  /* ===== Chapter 5 — slideshow ===== */
+  .show-wrap{ max-width:1120px; margin:0 auto; padding:44px clamp(24px,6vw,80px) clamp(80px,12vh,140px); }
+  .slidebox{ position:relative; width:100%; max-width:880px; margin:0 auto; aspect-ratio:16/10; border-radius:18px; overflow:hidden;
+    border:1px solid var(--c-12); background:linear-gradient(155deg, var(--ink-2) 0%, var(--plum) 100%);
+    cursor:pointer; user-select:none; touch-action:pan-y; }
+  .slide{ position:absolute; inset:0; opacity:0; transition:opacity .7s ease; display:flex; flex-direction:column; justify-content:flex-end;
+    padding:clamp(28px,5vw,52px); }
+  .slide.on{ opacity:1; }
+  /* feathered portrait — bleeds in from the right, edges dissolve into the dark (matches the note section) */
+  .slide .ph{ position:absolute; top:0; right:0; bottom:0; left:auto; width:52%; overflow:hidden; }
+  .slide .ph img{ width:100%; height:100%; object-fit:cover; object-position:center 16%; filter:saturate(.92) brightness(.96); }
+  .slide .ph::after{ content:""; position:absolute; inset:0; pointer-events:none; background:
+      linear-gradient(90deg, var(--ink-2) 0%, rgba(34,18,25,0) 48%),
+      linear-gradient(0deg,  rgba(34,18,25,.85), rgba(34,18,25,0) 30%),
+      linear-gradient(180deg, rgba(34,18,25,.6),  rgba(34,18,25,0) 24%); }
+  .slide h3{ position:relative; z-index:3; font-family:var(--serif); font-weight:400; font-style:italic; font-size:clamp(1.8rem,4vw,2.8rem);
+    line-height:1.05; color:#fff; margin:0 0 12px; text-shadow:0 2px 20px rgba(0,0,0,.5); }
+  .slide p{ position:relative; z-index:3; max-width:min(32ch,54%); color:rgba(255,255,255,.85); font-size:15px; line-height:1.55; text-shadow:0 1px 10px rgba(0,0,0,.5); }
+  .slide p span{ display:block; }
+  @media(max-width:620px){
+    .slide .ph{ width:100%; }
+    .slide .ph::after{ background:linear-gradient(0deg, rgba(15,9,12,.94) 6%, rgba(15,9,12,.18) 48%, rgba(15,9,12,.5) 100%); }
+    .slide p{ max-width:42ch; }
+  }
+  .dots{ position:absolute; bottom:18px; left:50%; transform:translateX(-50%); z-index:4; display:flex; gap:7px;
+    background:rgba(0,0,0,.3); padding:7px 12px; border-radius:999px; }
+  .dot{ width:10px; height:10px; border-radius:999px; background:rgba(255,255,255,.45); border:none; cursor:pointer; transition:all .3s ease; padding:0; }
+  .dot.on{ width:24px; background:#fff; }
+
+  /* ===== Chapter 6 — circle / newsletter ===== */
+  .circle{ padding:clamp(80px,12vh,150px) clamp(24px,6vw,80px); display:flex; justify-content:center; }
+  .circle .card{ position:relative; max-width:680px; width:100%; text-align:center; padding:clamp(40px,6vw,68px) clamp(28px,5vw,60px);
+    border-radius:24px; border:1px solid var(--c-18); overflow:hidden;
+    background:radial-gradient(120% 100% at 50% 0%, rgba(217,184,120,.08), transparent 55%), linear-gradient(180deg, var(--ink-2), var(--ink-1)); }
+  .circle h2{ font-family:var(--serif); font-weight:300; font-variation-settings:"opsz" 110; font-size:clamp(1.9rem,4vw,3rem);
+    line-height:1.05; letter-spacing:-.03em; color:var(--cream); margin:18px 0 14px; }
+  .circle h2 em{ font-style:italic; color:var(--gold); }
+  .circle p{ color:var(--c-70); font-weight:300; font-size:16px; line-height:1.6; max-width:46ch; margin:0 auto 28px; }
+  .signup{ display:flex; gap:10px; max-width:440px; margin:0 auto; flex-wrap:wrap; justify-content:center; }
+  .signup input{ flex:1 1 220px; background:rgba(22,15,19,.6); border:1px solid var(--c-18); color:var(--cream);
+    padding:14px 18px; border-radius:999px; font-family:var(--sans); font-size:15px; }
+  .signup input::placeholder{ color:var(--c-30); } .signup input:focus{ outline:none; border-color:var(--gold); }
+
+  /* ===== Chapter 7 — FAQ ===== */
+  .faq{ max-width:1120px; margin:0 auto; padding:clamp(80px,12vh,140px) clamp(24px,6vw,80px); display:flex; gap:clamp(40px,7vw,80px); align-items:flex-start; }
+  @media(max-width:820px){ .faq{ flex-direction:column; gap:32px; } }
+  .faq .aside{ flex:0 0 36%; position:sticky; top:120px; }
+  @media(max-width:820px){ .faq .aside{ position:static; } }
+  .faq .aside h2{ font-family:var(--serif); font-weight:300; font-variation-settings:"opsz" 120; font-size:clamp(2rem,4.2vw,3rem);
+    line-height:1.02; letter-spacing:-.03em; color:var(--cream); margin:16px 0 14px; }
+  .faq .aside h2 em{ font-style:italic; color:var(--gold); }
+  .faq .aside p{ color:var(--c-50); font-size:16px; line-height:1.55; max-width:30ch; }
+  .faq .aside a{ color:var(--gold); }
+  .faq .list{ flex:1; max-width:48rem; }
+  .qa{ border-bottom:1px solid var(--c-12); }
+  .qa button{ width:100%; display:flex; align-items:center; justify-content:space-between; gap:28px;
+    padding:26px 0; background:none; border:none; cursor:pointer; text-align:left; }
+  .qa button span{ font-family:var(--serif); font-weight:500; font-size:1.2rem; letter-spacing:-.01em; line-height:1.35; color:var(--c-90); transition:color .25s ease; }
+  .qa button:hover span{ color:var(--cream); }
+  .qa .icon{ flex-shrink:0; width:34px; height:34px; border-radius:999px; border:1px solid var(--c-12); color:var(--c-70);
+    display:flex; align-items:center; justify-content:center; transition:transform .4s cubic-bezier(.2,.7,.2,1), background .25s ease, color .25s ease; }
+  .qa.open .icon{ transform:rotate(180deg); background:rgba(217,184,120,.08); color:var(--gold); }
+  .qa .ans{ max-height:0; overflow:hidden; transition:max-height .4s cubic-bezier(.2,.7,.2,1), padding-bottom .4s ease; }
+  .qa .ans p{ font-size:16px; line-height:1.7; color:var(--c-70); max-width:60ch; padding-right:48px; }
+
+  /* ===== Chapter 8 — closing + footer ===== */
+  .closer{ position:relative; overflow:hidden; text-align:center; padding:clamp(110px,18vh,200px) clamp(24px,6vw,80px) clamp(90px,14vh,140px); }
+  .closer-bg{ position:absolute; inset:0; background:url("Assets/cherry-skyline.jpg") center 28%/cover no-repeat;
+    filter:blur(8px); transform:scale(1.08); }
+  .closer-bg::after{ content:""; position:absolute; inset:0;
+    background-image:linear-gradient(180deg, rgba(74,30,40,.5), rgba(58,30,36,.3) 46%, rgba(22,15,19,1) 100%); }
+  .closer-inner{ position:relative; z-index:2; }
+  .closer h2{ font-family:var(--serif); font-weight:300; font-variation-settings:"opsz" 144;
+    font-size:clamp(2.4rem,6vw,4.5rem); line-height:1.0; letter-spacing:-.04em; color:var(--cream); margin-bottom:14px; }
+  .closer h2 em{ font-style:italic; color:var(--gold); }
+  .closer p{ color:var(--c-70); font-weight:300; font-size:clamp(16px,1.8vw,20px); margin-bottom:34px; max-width:40ch; margin-inline:auto; }
+  footer.site{ border-top:1px solid var(--c-12); background:linear-gradient(180deg, transparent, rgba(217,184,120,.02)), var(--ink-1);
+    padding:clamp(56px,8vh,80px) clamp(24px,6vw,80px) 40px; }
+  .foot-grid{ max-width:1120px; margin:0 auto; display:flex; flex-wrap:wrap; gap:48px; }
+  .foot-brand{ flex:1 1 300px; min-width:240px; display:flex; flex-direction:column; gap:14px; }
+  .foot-brand .fmark{ font-family:var(--serif); font-style:italic; font-size:24px; color:var(--gold); }
+  .foot-brand p{ font-family:var(--serif); font-style:italic; font-size:16px; color:var(--c-70); line-height:1.5; max-width:24ch; }
+  .foot-col{ flex:1 1 150px; min-width:130px; display:flex; flex-direction:column; gap:13px; }
+  .foot-col h4{ font-family:var(--mono); font-size:11px; font-weight:600; letter-spacing:.18em; text-transform:uppercase; color:var(--c-50); margin-bottom:2px; }
+  .foot-col a{ font-size:14px; color:var(--c-50); text-decoration:none; transition:color .2s ease, transform .2s ease; display:inline-block; }
+  .foot-col a:hover{ color:var(--cream); transform:translateX(2px); }
+  .foot-copy{ max-width:1120px; margin:40px auto 0; padding-top:24px; border-top:1px solid var(--c-12);
+    font-family:var(--mono); font-size:12px; letter-spacing:.04em; color:var(--c-30); }
+
+  /* reveal */
+  .reveal{ opacity:0; transform:translateY(28px); transition:opacity .9s cubic-bezier(.2,.7,.2,1), transform .9s cubic-bezier(.2,.7,.2,1); }
+  .reveal.in{ opacity:1; transform:none; }
+  .reveal.d1{ transition-delay:.08s; } .reveal.d2{ transition-delay:.16s; } .reveal.d3{ transition-delay:.24s; }
+
+  @media(prefers-reduced-motion:reduce){
+    .reveal{ opacity:1; transform:none; }
+    body::after,.spotlight{ display:none; }
+  }
+</style>
+</head>
+<body>
+<div class="spotlight"></div>
+
+<header class="site" id="nav">
+  <a class="brand" href="#top">Novels by <em>Cherry</em></a>
+  <nav class="site-nav">
+    <a href="#novels">The Novels</a>
+    <a href="#story">Her Story</a>
+    <a href="#faq">FAQ</a>
+    <a href="#novels" class="cta">Read Her Work</a>
+  </nav>
+</header>
+
+<a id="top"></a>
+
+<!-- ===== Chapter 1 — Hero bloom ===== -->
+<section class="chapter hero" id="hero">
+  <div class="stage">
+    <div class="filmframe">
+      <video class="herofilm" id="herofilm" muted playsinline preload="auto" disablepictureinpicture></video>
+      <div class="veil" id="veil"></div>
+      <div class="wordmark">
+        <div class="eyebrow"><span class="line"></span>Fiction · Faith · A Whole Lot of Nerve<span class="line"></span></div>
+        <h1 class="name">Novels by <em>Cherry</em></h1>
+        <p class="subline" id="subline"><span class="ln">Southern stories about falling hard,</span><span class="ln">rising harder,</span><span class="ln">and <em>never losing your shine.</em></span></p>
+        <p class="invite" id="invite">Pull up a chair · <em>Stay a while</em></p>
+      </div>
+    </div>
+    <div class="scrollcue" id="scrollcue"><span>Scroll</span><span class="track"></span></div>
+  </div>
+</section>
+
+<!-- ===== Chapter 2 — A note from Cherry ===== -->
+<section class="chapter note" id="note">
+  <div class="inner">
+    <div class="eyebrow"><span class="line"></span>A note from Cherry</div>
+    <h2>Hey,&nbsp;y'all&nbsp;—</h2>
+    <p class="lead">I write about women who get knocked all the way down, then come back shining.</p>
+    <p class="body">Banker by day, storyteller by heart. Every novel on this shelf is a bounce back — funny, honest, and unmistakably Southern. The kind of story you finish at 1 a.m. and press into a friend's hands the next morning.</p>
+    <div class="row">
+      <a href="#novels" class="btn">Meet the books
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+      <span class="sig">From the desk of Cherry · Banking by day, novelist always</span>
+    </div>
+  </div>
+  <figure class="note-portrait">
+    <img src="Assets/cherry-full.jpg" alt="Cherry in a red dress with the Charlotte skyline behind her" />
+  </figure>
+</section>
+
+<!-- ===== Statement ===== -->
+<section class="chapter statement-band">
+  <div class="head center reveal">
+    <div class="eyebrow"><span class="line"></span>The Queen of That Bounce Back<span class="line"></span></div>
+    <h2>Stories the South whispers,<br><em>told out loud.</em></h2>
+    <p>Real life, hard choices, and the secrets old folks down South said to take to the grave — Cherry writes the kind of fiction you press into a friend's hands and say, <em>you have to read this.</em></p>
+    <p>Three novels deep, she blends down-home humor and dry wit with the mess, the grace, and the bounce-back endings that earned her a hashtag of her own.</p>
+    <p class="pullquote"><span class="qline">"I want my readers to laugh, cry, and relate…"</span><span class="cite">— Cherry</span></p>
+  </div>
+</section>
+
+<!-- ===== Chapter 3 — The Novels (carousel) ===== -->
+<section class="chapter carousel" id="novels">
+  <div class="head center reveal">
+    <div class="eyebrow"><span class="line"></span>The Collection<span class="line"></span></div>
+    <h2>Three novels,<br><em>one bounce back after another.</em></h2>
+    <p>Three rides. Buckle up. Pick a cover to bring it forward — each stands on its own, so start wherever it pulls you in.</p>
+  </div>
+
+  <div class="bookslider">
+    <input class="bs-radio bs-1" type="radio" id="bk1" name="bookslider" checked />
+    <input class="bs-radio bs-2" type="radio" id="bk2" name="bookslider" />
+    <input class="bs-radio bs-3" type="radio" id="bk3" name="bookslider" />
+
+    <ul class="bs-stage">
+      <li>
+        <img class="bs-cover" src="Assets/albot-cover.png" alt="A Little Bit of Tail — a novel by Cherry" />
+        <div class="bs-foot">
+          <span class="bs-tag">Book One · Where It Started</span>
+          <p class="bs-blurb">Notebooks of poems and songs became characters and stories — and a debut readers couldn't put down.</p>
+          <a class="bs-buy" href="#"><span class="shine"></span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3h2.2l2.3 12.2a1.6 1.6 0 0 0 1.6 1.3h8.7a1.6 1.6 0 0 0 1.6-1.2L21.5 7H6.2"/></svg><span class="lbl">Buy on Amazon</span></a>
+          <a class="bs-chapter" href="read/a-little-bit-of-tail.html"><svg class="bk" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.6C10.4 5.1 7.9 4.3 4 4.3v13c3.9 0 6.4.8 8 2.3 1.6-1.5 4.1-2.3 8-2.3v-13c-3.9 0-6.4.8-8 2.3Zm0 0v13"/></svg><span>Read the first chapter</span><svg class="arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </div>
+      </li>
+      <li>
+        <img class="bs-cover" src="Assets/hot-cover.png" alt="Heads Over Tails — a novel by Cherry" />
+        <div class="bs-foot">
+          <span class="bs-tag">Book Two · The Story Continues</span>
+          <p class="bs-blurb">Life-changing decisions, down-home wit, and consequences nobody saw coming.</p>
+          <a class="bs-buy" href="#"><span class="shine"></span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3h2.2l2.3 12.2a1.6 1.6 0 0 0 1.6 1.3h8.7a1.6 1.6 0 0 0 1.6-1.2L21.5 7H6.2"/></svg><span class="lbl">Buy on Amazon</span></a>
+          <a class="bs-chapter" href="read/heads-over-tails.html"><svg class="bk" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.6C10.4 5.1 7.9 4.3 4 4.3v13c3.9 0 6.4.8 8 2.3 1.6-1.5 4.1-2.3 8-2.3v-13c-3.9 0-6.4.8-8 2.3Zm0 0v13"/></svg><span>Read the first chapter</span><svg class="arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </div>
+      </li>
+      <li>
+        <img class="bs-cover" src="Assets/sfn-cover.png" alt="Something for Nothing — a novel by Cherry" />
+        <div class="bs-foot">
+          <span class="bs-tag">Book Three · The Latest</span>
+          <p class="bs-blurb">Sharp, fresh light on the topics polite company won't touch — and the grace to grow through them. The newest ride, and readers say it's her boldest yet.</p>
+          <a class="bs-buy" href="#"><span class="shine"></span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3h2.2l2.3 12.2a1.6 1.6 0 0 0 1.6 1.3h8.7a1.6 1.6 0 0 0 1.6-1.2L21.5 7H6.2"/></svg><span class="lbl">Buy on Amazon</span></a>
+          <a class="bs-chapter" href="read/something-for-nothing.html"><svg class="bk" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.6C10.4 5.1 7.9 4.3 4 4.3v13c3.9 0 6.4.8 8 2.3 1.6-1.5 4.1-2.3 8-2.3v-13c-3.9 0-6.4.8-8 2.3Zm0 0v13"/></svg><span>Read the first chapter</span><svg class="arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </div>
+      </li>
+    </ul>
+
+    <div class="bs-thumbs">
+      <label class="bs-thumb bs-t1" for="bk1" aria-label="A Little Bit of Tail"></label>
+      <label class="bs-thumb bs-t2" for="bk2" aria-label="Heads Over Tails"></label>
+      <label class="bs-thumb bs-t3" for="bk3" aria-label="Something for Nothing"></label>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Chapter 4 — Her Story ===== -->
+<section class="chapter" id="story">
+  <div class="head center reveal">
+    <div class="eyebrow"><span class="line"></span>Her Story<span class="line"></span></div>
+    <h2>From a library card<br><em>to a byline.</em></h2>
+    <p>The short version of a long love affair with stories.</p>
+  </div>
+  <div class="about reveal">
+    <div class="portrait"><img src="Assets/cherry-headshot.jpg" alt="Cherry, author of Southern fiction, in Charlotte, North Carolina" /></div>
+    <div class="about-copy">
+      <h3>Raised on words.<br>Built to bounce back.</h3>
+      <p>The daughter of a single mother who told her she could do anything, Cherry was reading aloud by age five — and quietly filling notebooks with poems and songs long before the world knew her name.</p>
+      <p>By day she holds her own in banking and finance in Charlotte, North Carolina. But not even a Fortune 500 could keep her from the page. Her stories blend real-life situations and hard choices with a down-home sense of humor — and above it all, her goal is simple: for God to get the glory.</p>
+      <span class="sig">— Cherry</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Chapter 5 — What you'll find (slideshow) ===== -->
+<section class="chapter" id="inside">
+  <div class="head center reveal">
+    <div class="eyebrow"><span class="line"></span>Between the covers<span class="line"></span></div>
+    <h2>What you'll <em>find inside.</em></h2>
+    <p>Different stories, same beating heart.</p>
+  </div>
+  <div class="show-wrap reveal">
+    <div class="slidebox" id="show" data-i="0">
+      <div class="slide on" data-s="0">
+        <div class="ph"><img src="Assets/cherry-avatar-leather.png" alt="Cherry, standing tall in a leather jacket" /></div>
+        <h3>Resilience</h3>
+        <p><span>Women who hit the floor</span> <span>and rise with their shine intact.</span></p>
+      </div>
+      <div class="slide" data-s="1">
+        <div class="ph"><img src="Assets/cherry-avatar-porch.png" alt="Cherry on a Southern porch among magnolias" /></div>
+        <h3>Southern wit</h3>
+        <p><span>Sharp tongues, warm hearts,</span> <span>and humor that carries the hard parts.</span></p>
+      </div>
+      <div class="slide" data-s="2">
+        <div class="ph"><img src="Assets/cherry-avatar-book.png" alt="Cherry in a gown at sunset, holding a book" /></div>
+        <h3>Second chances</h3>
+        <p><span>Messy choices, open doors,</span> <span>and the grace to begin again.</span></p>
+      </div>
+      <div class="dots" id="dots">
+        <button class="dot on" data-d="0" aria-label="Slide 1"></button>
+        <button class="dot" data-d="1" aria-label="Slide 2"></button>
+        <button class="dot" data-d="2" aria-label="Slide 3"></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Word travels fast (reviews) ===== -->
+<section class="chapter reviews">
+  <div class="head center reveal">
+    <div class="eyebrow"><span class="line"></span>The Readers<span class="line"></span></div>
+    <h2>Word <em>travels fast.</em></h2>
+  </div>
+  <div class="marquee-wrap reveal">
+    <div class="marquee" aria-label="Reader reviews">
+      <div class="review"><span class="stars" aria-hidden="true">★★★★★</span><p>"Finished it in two sittings. Laughed out loud on the bus and did not care who saw."</p><cite>Amazon Reviewer</cite></div>
+      <div class="review"><span class="stars" aria-hidden="true">★★★★★</span><p>"Cherry writes like your favorite cousin telling you the good gossip — with a lesson tucked inside."</p><cite>Goodreads Reader</cite></div>
+      <div class="review"><span class="stars" aria-hidden="true">★★★★★</span><p>"That ending. THAT. ENDING. I had to sit in my car for a minute."</p><cite>Amazon Reviewer</cite></div>
+      <div class="review"><span class="stars" aria-hidden="true">★★★★★</span><p>"Real, funny, and it'll sneak up on your heart when you least expect it."</p><cite>Book Club Pick</cite></div>
+      <div class="review" aria-hidden="true"><span class="stars">★★★★★</span><p>"Finished it in two sittings. Laughed out loud on the bus and did not care who saw."</p><cite>Amazon Reviewer</cite></div>
+      <div class="review" aria-hidden="true"><span class="stars">★★★★★</span><p>"Cherry writes like your favorite cousin telling you the good gossip — with a lesson tucked inside."</p><cite>Goodreads Reader</cite></div>
+      <div class="review" aria-hidden="true"><span class="stars">★★★★★</span><p>"That ending. THAT. ENDING. I had to sit in my car for a minute."</p><cite>Amazon Reviewer</cite></div>
+      <div class="review" aria-hidden="true"><span class="stars">★★★★★</span><p>"Real, funny, and it'll sneak up on your heart when you least expect it."</p><cite>Book Club Pick</cite></div>
+    </div>
+  </div>
+  <p class="swap-note">Sample reviews — swap in Cherry's real Amazon quotes.</p>
+</section>
+
+<!-- ===== Chapter 6 — Join the circle ===== -->
+<section class="chapter circle">
+  <div class="card reveal">
+    <div class="eyebrow" style="justify-content:center"><span class="line"></span>Stay close<span class="line"></span></div>
+    <h2>Join <em>Cherry's circle.</em></h2>
+    <p>Be first to know when the next novel drops — plus book signings, giveaways, and the occasional Southern musing.</p>
+    <form class="signup" onsubmit="return false">
+      <input type="email" placeholder="your@email.com" aria-label="Email address" />
+      <button class="btn" type="submit">Join</button>
+    </form>
+  </div>
+</section>
+
+<!-- ===== Chapter 7 — FAQ ===== -->
+<section class="chapter" id="faq">
+  <div class="faq">
+    <div class="aside reveal">
+      <div class="eyebrow"><span class="line"></span>FAQ</div>
+      <h2>Questions,<br><em>answered.</em></h2>
+      <p>Anything else? <a href="mailto:cherry@example.com">Email Cherry</a> directly.</p>
+    </div>
+    <div class="list">
+      <div class="qa reveal">
+        <button><span>Where can I buy Cherry's books?</span><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></span></button>
+        <div class="ans"><p>All three novels are available on Amazon in paperback and on Kindle. Tap "Buy on Amazon" on any book above to go straight to its page.</p></div>
+      </div>
+      <div class="qa reveal">
+        <button><span>Are the novels a series or standalones?</span><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></span></button>
+        <div class="ans"><p>A Little Bit of Tail and Heads Over Tails follow the same circle of women — read those two in order. Something for Nothing opens a brand-new story. Each one stands on its own, but for the full ride, start at the beginning.</p></div>
+      </div>
+      <div class="qa reveal">
+        <button><span>Is a new book on the way?</span><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></span></button>
+        <div class="ans"><p>Cherry's always writing. The surest way to hear it first is to join her circle above — new releases land there before they go anywhere else.</p></div>
+      </div>
+      <div class="qa reveal">
+        <button><span>Can I book Cherry for an event or book club?</span><span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></span></button>
+        <div class="ans"><p>Absolutely — Cherry loves connecting with readers. Reach out at <a href="mailto:cherry@example.com" style="color:var(--gold)">cherry@example.com</a> with your dates and details.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Chapter 8 — Closing + footer ===== -->
+<section class="chapter closer">
+  <div class="closer-bg"></div>
+  <div class="closer-inner">
+    <h2 class="reveal">Start with the one<br><em>that calls you.</em></h2>
+    <p class="reveal d1">Three stories. One unforgettable voice.</p>
+    <a href="#novels" class="btn reveal d2">Browse the novels
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </a>
+  </div>
+</section>
+
+<footer class="site">
+  <div class="foot-grid">
+    <div class="foot-brand">
+      <span class="fmark">Cherry</span>
+      <p>Southern fiction for the women who bounce back.</p>
+    </div>
+    <div class="foot-col">
+      <h4>Read</h4>
+      <a href="#">A Little Bit of Tail</a>
+      <a href="#">Heads Over Tails</a>
+      <a href="#">Something for Nothing</a>
+    </div>
+    <div class="foot-col">
+      <h4>Connect</h4>
+      <a href="#">Instagram</a>
+      <a href="#">Facebook</a>
+      <a href="mailto:cherry@example.com">Email</a>
+    </div>
+    <div class="foot-col">
+      <h4>More</h4>
+      <a href="#story">Her Story</a>
+      <a href="#faq">FAQ</a>
+      <a href="#">Events</a>
+    </div>
+  </div>
+  <div class="foot-copy">© 2026 Novels by Cherry · JMC Publishing · Charlotte, NC</div>
+</footer>
+
+<script>
+/* ---------- smooth scroll (Lenis) wired to ScrollTrigger ---------- */
+const lenis = new Lenis();
+lenis.on('scroll', () => ScrollTrigger && ScrollTrigger.update());
+gsap.ticker.add((t) => lenis.raf(t * 1000));
+gsap.ticker.lagSmoothing(0);
+gsap.registerPlugin(ScrollTrigger);
+
+/* hero film — scroll-scrubbed video + wordmark reveal */
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+const film=document.getElementById('herofilm');
+const heroStage=document.querySelector('#hero .stage');
+const veil=document.getElementById('veil');
+const wordmark=document.querySelector('.wordmark');
+const subline=document.getElementById('subline'), scrollcue=document.getElementById('scrollcue');
+const invite=document.getElementById('invite');
+const sublines=[...subline.querySelectorAll('.ln')];
+const holdLineAt=[0.12,0.24,0.36];   // staggered across the hold phase, after the film has landed
+
+let filmDur=5, lastT=-1;
+/* Seeking a paused <video> doesn't paint frames on touch browsers (esp. iOS Safari),
+   so the scroll-scrub leaves the hero blank on phones. Only scrub where there's a real
+   pointer; on touch, play the film as a muted inline loop instead. */
+const canScrub = matchMedia('(pointer: fine)').matches;
+if(canScrub){
+  film.src = 'Assets/hero-scrub-v3.mp4';   // desktop: all-keyframe encode of the garden film, scrubbed by scroll
+  film.pause();
+}else{
+  film.src = 'Assets/hero-mobile-v3.mp4';  // phones: lighter 720p encode, autoplayed as a muted loop
+  film.loop = true;
+  const startFilm = ()=> film.play().catch(()=>{});
+  startFilm();
+  addEventListener('touchstart', startFilm, { once:true, passive:true });
+}
+film.addEventListener('loadedmetadata', ()=>{ filmDur=film.duration||5; ScrollTrigger.refresh(); setHero(ScrollTrigger.getById('hero')?.progress||0); });
+
+/* the film + text play out over the first VIDEO_SPAN of the hero scroll; the
+   remaining tail holds on the final frame so the title sits a beat before the
+   page moves on (no instant scroll-away once the text lands) */
+const VIDEO_SPAN=0.7;
+function setHero(p){
+  const vp=clamp(p/VIDEO_SPAN,0,1);   // 0→1 across the film; pins at 1 through the hold tail
+  heroStage.style.setProperty('--mobile-hero-bg', clamp(vp/0.24,0,1));
+  if(canScrub && film.readyState>=1){
+    const t=vp*filmDur;
+    if(Math.abs(t-lastT)>0.008){ film.currentTime=t; lastT=t; }
+  }
+  const mobileHero = matchMedia('(max-width:760px)').matches;
+  const hp=clamp((p-VIDEO_SPAN)/(1-VIDEO_SPAN),0,1);   // hold phase — the film is done; the supporting copy fades in here, over the finished frame
+  const w=clamp((hp-0.02)/0.24,0,1);                    // text fades in once "Novels by Cherry" has resolved
+  wordmark.style.opacity=w;
+  wordmark.style.transform=`translateY(${(1-w)*16}px)`;
+  veil.style.opacity=mobileHero ? clamp((vp-0.20)/0.24,0,1) : clamp(hp/0.26,0,1);   // mobile swallows the clipped baked title during the film; desktop scrim rises with the text
+  sublines.forEach((ln,i)=> ln.classList.toggle('show', hp>holdLineAt[i]));
+  invite.classList.toggle('show', hp>0.5);   // last beat
+  scrollcue.style.opacity = p>0.05 ? 0 : 1;
+}
+ScrollTrigger.create({ id:'hero', trigger:'#hero', start:'top top', end:'bottom bottom', scrub:1, onUpdate:self=>setHero(self.progress) });
+setHero(0);
+
+/* ---------- Chapter 2 (note): pin + slide-in from the right ---------- */
+/* Pins the section so a continuous scroll pauses here while the lines
+   stagger in from the right. Placeholder timing — easy to tune. */
+gsap.timeline({
+  scrollTrigger:{ trigger:'.note', start:'top top', end:'+=90%', pin:true, scrub:0.6, anticipatePin:1 }
+})
+  .from('.note .inner > *', { x:140, opacity:0, ease:'power3.out', duration:0.8, stagger:0.18 })
+  .from('.note-portrait', { clipPath:'inset(100% 0 0 0)', opacity:0, ease:'power2.out', duration:1.1 }, '>-0.25');
+
+/* ---------- page-load entrance (hero) ---------- */
+if(!matchMedia('(prefers-reduced-motion: reduce)').matches){
+  gsap.timeline({ defaults:{ ease:'power3.out' } })
+    .from('header.site', { y:-22, opacity:0, duration:0.9 }, 0.10)
+    .from('.scrollcue',  { opacity:0, duration:0.8 },        1.15);
+}
+
+/* ---------- reveal on scroll ---------- */
+const io=new IntersectionObserver((ents)=>{ents.forEach(en=>{ if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); } });},{threshold:0.16});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+/* ---------- nav glass on scroll ---------- */
+const nav=document.getElementById('nav');
+ScrollTrigger.create({ start:'top -60', end:99999, onUpdate:()=>{}, onToggle:()=>{} });
+lenis.on('scroll', ({scroll})=> nav.classList.toggle('scrolled', scroll>60));
+
+/* novels selector slider is pure CSS (radio inputs) — no JS needed */
+
+/* ---------- themes slideshow ---------- */
+(function(){
+  const show=document.getElementById('show');
+  const slides=[...show.querySelectorAll('.slide')];
+  const dots=[...document.getElementById('dots').querySelectorAll('.dot')];
+  let i=0, timer;
+  function set(n){ slides[i].classList.remove('on'); dots[i].classList.remove('on'); i=(n+slides.length)%slides.length; slides[i].classList.add('on'); dots[i].classList.add('on'); }
+  function next(){ set(i+1); }
+  function go(n){ set(n); restart(); }
+  function restart(){ clearInterval(timer); timer=setInterval(next,5000); }
+  dots.forEach(d=>d.onclick=e=>{ e.stopPropagation(); go(+d.dataset.d); });
+  show.addEventListener('click', ()=> go(i+1));
+  let sx=null;
+  show.addEventListener('touchstart', e=>{ sx=e.touches[0].clientX; }, {passive:true});
+  show.addEventListener('touchend', e=>{ if(sx===null) return; const dx=e.changedTouches[0].clientX-sx; if(Math.abs(dx)>40) go(i+(dx<0?1:-1)); sx=null; });
+  restart();
+})();
+
+/* ---------- FAQ accordion ---------- */
+document.querySelectorAll('.qa button').forEach(btn=>{
+  btn.onclick=()=>{
+    const qa=btn.parentElement, ans=qa.querySelector('.ans');
+    const open=qa.classList.toggle('open');
+    ans.style.maxHeight = open ? ans.scrollHeight+'px' : '0';
+    ans.style.paddingBottom = open ? '28px' : '0';
+  };
+});
+
+/* ---------- cursor spotlight ---------- */
+const spot=document.querySelector('.spotlight'); let raf;
+addEventListener('pointermove',e=>{ if(raf)return; raf=requestAnimationFrame(()=>{ spot.style.setProperty('--mx',e.clientX+'px'); spot.style.setProperty('--my',e.clientY+'px'); raf=null; }); },{passive:true});
+</script>
+<script src="page-transition.js"></script>
+</body>
+</html>
