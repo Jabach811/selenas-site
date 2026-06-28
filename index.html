@@ -124,7 +124,7 @@
     content:""; position:absolute; inset:0; z-index:-1; opacity:.92;
     background:
       linear-gradient(180deg, rgba(10,6,8,.12), rgba(10,6,8,.82)),
-      var(--preview-image) center/cover no-repeat;
+      var(--preview-image) var(--preview-position, center 18%)/cover no-repeat;
     transform:scale(1.02);
     transition:transform .7s cubic-bezier(.2,.8,.2,1), opacity .35s ease;
   }
@@ -137,8 +137,14 @@
   }
   .version-card:hover::after,
   .version-card:focus-visible::after{ transform:scale(1.08); opacity:1; }
-  .version-card.v3{ --preview-image:url("Assets/cherry-avatar-leather.png"); }
-  .version-card.v4{ --preview-image:url("Assets/cherry-avatar-book.png"); }
+  .version-card.v3{
+    --preview-image:url("Assets/cherry-avatar-leather.png");
+    --preview-position:center 14%;
+  }
+  .version-card.v4{
+    --preview-image:url("Assets/cherry-avatar-book.png");
+    --preview-position:center 16%;
+  }
   .card-top{
     display:flex; align-items:flex-start; justify-content:space-between; gap:14px;
     padding:22px;
@@ -238,10 +244,13 @@
   @media (max-width:640px){
     .shell{ width:min(100% - 28px, 1180px); }
     header{ align-items:flex-start; padding:20px 0; }
-    .header-note{ max-width:15ch; text-align:right; line-height:1.45; }
+    .header-note{ display:none; }
     main{ padding:28px 0 42px; }
+    h1{ font-size:clamp(48px,14vw,68px); max-width:8ch; line-height:.96; }
     .version-grid{ grid-template-columns:1fr; }
-    .version-card{ min-height:320px; }
+    .version-card{ min-height:420px; }
+    .version-card.v3{ --preview-position:center 9%; }
+    .version-card.v4{ --preview-position:center 11%; }
     footer{ flex-direction:column; align-items:flex-start; }
   }
   @media (prefers-reduced-motion:reduce){
