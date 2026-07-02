@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Selena Cherry | Animation Versions</title>
-<meta name="description" content="Choose between the original V3 animation and the new V5 animation for Selena Cherry's site." />
+<meta name="description" content="Choose between the original V3 animation, the V5 animation pass, and the brand-new V6 design for Selena Cherry's site." />
 <style>
   :root{
     --ink:#100b0d;
@@ -98,7 +98,7 @@
   }
   .version-grid{
     display:grid;
-    grid-template-columns:repeat(2,minmax(0,1fr));
+    grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
     gap:16px;
   }
   .version-card{
@@ -144,6 +144,10 @@
   .version-card.v4{
     --preview-image:url("Assets/cherry-avatar-book.png");
     --preview-position:center 16%;
+  }
+  .version-card.v6{
+    --preview-image:url("Assets/cherry-full.jpg");
+    --preview-position:center 24%;
   }
   .card-top{
     display:flex; align-items:flex-start; justify-content:space-between; gap:14px;
@@ -274,8 +278,8 @@
           <div class="kicker">Preview Portal</div>
           <h1 id="page-title">Choose the opening scene</h1>
           <p>
-            Two published cuts are ready to view. V3 keeps the original reveal,
-            while V5 uses the newest mobile-friendly animation pass.
+            Three published cuts are ready to view. V3 keeps the original reveal,
+            V5 is the mobile-friendly animation pass, and V6 is a brand-new design.
           </p>
         </div>
 
@@ -303,13 +307,25 @@
               <div class="open-row"><span>Open V5</span><span class="arrow">→</span></div>
             </div>
           </a>
+
+          <a class="version-card v6" href="index%20V6.html" aria-label="Open the new design, version 6">
+            <div class="card-top">
+              <span class="badge">V6</span>
+              <span class="motion-lines" aria-hidden="true"><span></span><span></span><span></span></span>
+            </div>
+            <div class="card-bottom">
+              <h2>Midnight Garden</h2>
+              <p>A brand-new design — night-garden hero film, stacking book spreads, candlelit throughout.</p>
+              <div class="open-row"><span>Open V6</span><span class="arrow">→</span></div>
+            </div>
+          </a>
         </div>
       </section>
     </main>
 
     <footer>
       <span>GitHub Pages entry point</span>
-      <span><a href="index%20V3.html">V3 original</a> · <a href="index%20V5.html">V5 new</a></span>
+      <span><a href="index%20V3.html">V3 original</a> · <a href="index%20V5.html">V5 new</a> · <a href="index%20V6.html">V6 design</a></span>
     </footer>
   </div>
 
