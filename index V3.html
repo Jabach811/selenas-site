@@ -743,7 +743,7 @@ let filmDur=5, lastT=-1;
    pointer; on touch, play the film as a muted inline loop instead. */
 const canScrub = matchMedia('(pointer: fine)').matches;
 if(canScrub){
-  film.src = 'Assets/hero-scrub-v3.mp4';   // desktop: all-keyframe encode of the garden film, scrubbed by scroll
+  film.src = 'Assets/hero-scrub.mp4';      // desktop garden film, scrubbed by scroll
   film.pause();
 }else{
   film.src = 'Assets/hero-mobile-v3.mp4';  // phones: lighter 720p encode, autoplayed as a muted loop
