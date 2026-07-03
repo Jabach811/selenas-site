@@ -442,7 +442,7 @@
 
 <!-- ===== hero — the midnight garden ===== -->
 <section class="hero" id="hero">
-  <video id="herofilm" autoplay muted loop playsinline preload="auto" aria-hidden="true"></video>
+  <video id="herofilm" src="Assets/8ZWh1AxyLGZI8WLo_z8k-_video.mp4" autoplay muted loop playsinline preload="auto" aria-hidden="true"></video>
   <div class="grade"></div>
   <div class="hero-copy">
     <div class="eyebrow"><span class="line"></span>Fiction · Faith · A Whole Lot of Nerve</div>
@@ -722,12 +722,13 @@
 </footer>
 
 <script>
-/* hero film — phones get a portrait cut trimmed before the baked title fades in;
-   desktop keeps the full 16:9 garden film (its centered title reads fine there) */
+/* hero film — one video everywhere. The baked script title fades in at ~6.2s;
+   it reads fine full-frame on desktop but crops ugly in portrait, so on phones
+   we restart the loop at 5.8s and it never appears */
 const herofilm=document.getElementById('herofilm');
-herofilm.src = matchMedia('(max-width:760px)').matches
-  ? 'Assets/hero-mobile-v6.mp4'
-  : 'Assets/8ZWh1AxyLGZI8WLo_z8k-_video.mp4';
+herofilm.addEventListener('timeupdate', ()=>{
+  if(innerWidth<=760 && herofilm.currentTime>=5.8) herofilm.currentTime=0;
+});
 herofilm.play().catch(()=>{});
 addEventListener('touchstart', ()=>herofilm.play().catch(()=>{}), { once:true, passive:true });
 
