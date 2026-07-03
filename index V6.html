@@ -442,9 +442,7 @@
 
 <!-- ===== hero — the midnight garden ===== -->
 <section class="hero" id="hero">
-  <video autoplay muted loop playsinline preload="auto" aria-hidden="true">
-    <source src="Assets/Selena Site Hero Animation.mp4" type="video/mp4" />
-  </video>
+  <video id="herofilm" autoplay muted loop playsinline preload="auto" aria-hidden="true"></video>
   <div class="grade"></div>
   <div class="hero-copy">
     <div class="eyebrow"><span class="line"></span>Fiction · Faith · A Whole Lot of Nerve</div>
@@ -724,6 +722,15 @@
 </footer>
 
 <script>
+/* hero film — phones get a portrait cut trimmed before the baked title fades in;
+   desktop keeps the full 16:9 garden film (its centered title reads fine there) */
+const herofilm=document.getElementById('herofilm');
+herofilm.src = matchMedia('(max-width:760px)').matches
+  ? 'Assets/hero-mobile-v6.mp4'
+  : 'Assets/8ZWh1AxyLGZI8WLo_z8k-_video.mp4';
+herofilm.play().catch(()=>{});
+addEventListener('touchstart', ()=>herofilm.play().catch(()=>{}), { once:true, passive:true });
+
 /* nav glass on scroll */
 const nav=document.getElementById('nav');
 addEventListener('scroll', ()=> nav.classList.toggle('scrolled', scrollY>60), {passive:true});
