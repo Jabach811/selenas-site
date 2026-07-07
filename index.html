@@ -28,18 +28,25 @@
       .letter-card{ display:block !important; }
       .letter-figure{ min-height:0 !important; height:300px !important; }
       .letter-fade{ background:linear-gradient(0deg, var(--cream) 0%, rgba(244,233,222,0) 30%) !important; }
-      .book-card{ position:relative !important; top:auto !important; display:flex !important; flex-direction:column !important; align-items:stretch !important; min-height:0 !important; }
-      .book-art{ width:100% !important; height:44vh !important; order:-1 !important; }
-      .book-text{ padding:36px 24px 64px !important; max-width:none !important; }
+      .book-card{ display:flex !important; flex-direction:column !important; align-items:stretch !important; min-height:100svh !important; }
+      .book-art{ width:100% !important; height:30svh !important; flex:none !important; order:-1 !important; }
+      .book-text{ padding:20px 24px 40px !important; max-width:none !important; gap:12px !important; }
+      .book-text > img{ width:104px !important; }
+      .book-text h3{ font-size:1.9rem !important; }
       .book-num{ display:none !important; }
       .tript-row{ flex-direction:column !important; height:auto !important; }
       .tript-pane{ flex:none !important; height:34vh !important; min-height:240px !important; }
       .tript-title{ white-space:normal !important; }
       .tript-cap{ opacity:1 !important; transform:none !important; }
+      .tript-pane video{ filter:saturate(1) brightness(.95) !important; }
       .story-grid{ grid-template-columns:1fr !important; }
       .story-photo{ max-width:320px !important; }
       .circle-art{ opacity:.16 !important; width:100% !important; }
       .faq-grid{ grid-template-columns:1fr !important; }
+    }
+    @media (max-width: 720px) and (max-height: 700px) {
+      .book-art{ height:22svh !important; }
+      .book-text{ padding-bottom:24px !important; }
     }
   </style>
 </helmet>
@@ -433,9 +440,14 @@ class Component extends DCLogic {
       this.setState((s) => ({ quoteIndex: (s.quoteIndex + 1) % this.QUOTES.length }));
     }, 6000);
 
-    // triptych: the default-open pane's video plays; the rest wait for hover
-    const firstVideo = document.querySelector('#inside video');
-    if (firstVideo) firstVideo.play().catch(() => {});
+    // triptych: on mobile all panes are stacked and visible, so play them all;
+    // on desktop only the default-open pane plays and the rest wait for hover
+    if (window.matchMedia('(max-width: 720px)').matches) {
+      document.querySelectorAll('#inside video').forEach((v) => v.play().catch(() => {}));
+    } else {
+      const firstVideo = document.querySelector('#inside video');
+      if (firstVideo) firstVideo.play().catch(() => {});
+    }
   }
 
   componentWillUnmount() {
