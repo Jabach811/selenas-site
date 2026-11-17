@@ -48,7 +48,7 @@ body{ font-family:var(--serif); background:var(--paper); color:var(--ink-body); 
 .end-rule{ width:90px; height:1px; background:rgba(34,18,25,.22); margin:0 auto 44px; }
 .buybox{ display:flex; gap:22px; align-items:center; justify-content:center; flex-wrap:wrap;
   background:var(--ink); color:var(--cream); padding:28px 30px; border-radius:16px; }
-.buybox img{ width:78px; border-radius:5px; }
+.buybox img{ width:78px; height:auto; border-radius:5px; }
 .bx-copy{ max-width:300px; }
 .bx-copy h3{ font-family:var(--serif); font-style:italic; font-weight:400; font-size:1.45rem; margin-bottom:7px; }
 .bx-copy p{ font-family:var(--sans); font-size:14px; color:rgba(244,233,222,.7); line-height:1.5; margin-bottom:16px; }

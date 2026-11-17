@@ -1,0 +1,19 @@
+# Working files. None of this is part of the live site.
+dist
+version-two
+audit
+audit-current
+_archive
+docs
+source-photos
+.openai
+.codex
+.agents
+audit-extra.cjs
+audit-run.cjs
+Final Design - Video Covers.html
+Assets/_unused
+Assets/archived
+Assets/source
+Assets/Final Design - Needs last updates.html
+Assets/index V5.html
