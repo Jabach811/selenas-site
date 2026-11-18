@@ -38,9 +38,34 @@
   .post-sub{ text-align:center; font-family:var(--serif); font-style:italic;
     font-size:1.05rem; color:var(--gold-deep); margin-top:10px; }
 
-  .titlelist{ list-style:none; margin:0 0 1.4em; padding:22px 26px; background:rgba(217,184,120,.14);
+  .ballot{ margin:0 0 1.4em; padding:22px 26px 24px; background:rgba(217,184,120,.14);
     border-left:2px solid var(--gold-deep); border-radius:0 10px 10px 0; }
-  .titlelist li{ font-family:var(--serif); font-style:italic; font-size:1.1rem; line-height:1.9; }
+  .ballot fieldset{ border:0; min-width:0; }
+  .ballot legend{ position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); }
+  .ballot input[type=radio]{ position:absolute; opacity:0; pointer-events:none; }
+  .ballot label{ display:block; padding:9px 0; cursor:pointer; font-style:italic; font-size:1.1rem; line-height:1.35; }
+  .ballot label span{ display:block; position:relative; padding-left:32px; }
+  .ballot label span::before{ content:""; position:absolute; left:0; top:.2em; width:18px; height:18px;
+    border-radius:50%; border:1.5px solid var(--gold-deep); box-shadow:inset 0 0 0 4px var(--paper); }
+  .ballot input:checked + span{ color:var(--ink-head); font-weight:500; }
+  .ballot input:checked + span::before{ background:var(--gold-deep); box-shadow:inset 0 0 0 3.5px #f3e7d3; }
+  .ballot input:focus-visible + span{ outline:2px solid var(--gold-deep); outline-offset:3px; border-radius:3px; }
+  .ballot-row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; padding-top:18px;
+    border-top:1px solid rgba(34,18,25,.14); }
+  .ballot input[type=email]{ flex:1 1 220px; min-width:0; font-family:var(--sans); font-size:16px;
+    padding:13px 16px; border-radius:999px; border:1px solid rgba(34,18,25,.28); background:#fffaf3; color:var(--ink-head); }
+  .ballot button{ font-family:var(--mono); font-size:12px; font-weight:500; letter-spacing:.12em;
+    text-transform:uppercase; padding:14px 22px; border-radius:999px; border:0; cursor:pointer;
+    background:var(--ink); color:var(--cream); }
+  .ballot button:hover{ background:var(--plum); }
+  .ballot button:disabled{ opacity:.6; cursor:default; }
+  .ballot-fine{ font-family:var(--sans); font-size:13px; line-height:1.5; color:rgba(58,42,48,.7); margin-top:10px; }
+  .ballot-msg{ font-family:var(--sans); font-size:14px; line-height:1.5; color:var(--ink-head); }
+  .ballot-msg:not(:empty){ margin-top:10px; }
+  .ballot [data-done]{ display:none; }
+  .ballot.is-done [data-done]{ display:block; }
+  .ballot.is-done > :not([data-done]){ display:none; }
+  .ballot-done{ font-style:italic; font-size:1.2rem; line-height:1.5; color:var(--ink-head); }
 
   .signoff{ font-family:var(--serif); font-style:italic; font-size:1.3rem; color:var(--gold-deep); }
   .ps{ font-family:var(--sans); font-size:15px; line-height:1.65; color:rgba(58,42,48,.72);
@@ -76,13 +101,25 @@
       <p>Now, I don't want to give too much away just yet, but let's just say there's music, a little holiday magic, and a certain someone who may discover that falling in love is one thing he can't quite control. After all, even the most successful people can find themselves completely unprepared when love comes knocking.</p>
       <p>I'm having so much fun developing this story, and although it's still a work in progress, I'm hoping to have it ready just in time for Thanksgiving 2027.</p>
       <p>In the meantime, I've been tossing around a few possible titles, and I thought — why not let the readers in on the fun?</p>
-      <ul class="titlelist">
-        <li>A Hitmaker's Holiday</li>
-        <li>Offbeat for Christmas</li>
-        <li>All I Want Is You on Repeat</li>
-        <li>A Christmas Worth Replaying</li>
-        <li>The Christmas Love Session</li>
-      </ul>
+      <form class="ballot" data-ballot>
+        <fieldset>
+          <legend>Vote for a title</legend>
+          <label><input type="radio" name="fields[christmas_title]" value="A Hitmaker's Holiday" required><span>A Hitmaker's Holiday</span></label>
+          <label><input type="radio" name="fields[christmas_title]" value="Offbeat for Christmas"><span>Offbeat for Christmas</span></label>
+          <label><input type="radio" name="fields[christmas_title]" value="All I Want Is You on Repeat"><span>All I Want Is You on Repeat</span></label>
+          <label><input type="radio" name="fields[christmas_title]" value="A Christmas Worth Replaying"><span>A Christmas Worth Replaying</span></label>
+          <label><input type="radio" name="fields[christmas_title]" value="The Christmas Love Session"><span>The Christmas Love Session</span></label>
+        </fieldset>
+        <div class="ballot-row">
+          <input type="email" name="fields[email]" autocomplete="email" placeholder="Your email" aria-label="Your email" required>
+          <button type="submit">Cast my vote</button>
+        </div>
+        <div class="ballot-fine">Voting adds you to Between the Pages with Cherry. Unsubscribe anytime.</div>
+        <div class="ballot-msg" data-msg role="status"></div>
+        <div data-done>
+          <div class="ballot-done">Your vote for <span data-pick></span> is in.</div>
+        </div>
+      </form>
       <p>So here's where you come in. Based on these titles, can you guess what the story might be about? And more importantly, which title would make you want to pick up the book? I love hearing from my readers, and your thoughts just might help me make the final decision.</p>
       <p>This is only the beginning of what I hope will be a wonderful new chapter in my writing journey. Who knows? Maybe one Christmas romance will turn into a holiday tradition we can look forward to year after year.</p>
       <p>Until then, I'll be working behind the scenes, bringing these characters to life, and sharing a few surprises along the way. Thank you for continuing to support my stories and for being part of the Novels by Cherry family. I can't wait to share what's coming next.</p>
@@ -152,6 +189,32 @@
   };
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
+
+  // Sends the vote to the same MailerLite form as the homepage signup.
+  // The title rides along in the "christmas_title" field, which has to exist on that form.
+  const ballot = document.querySelector('[data-ballot]');
+  ballot.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = ballot.querySelector('button');
+    const msg = ballot.querySelector('[data-msg]');
+    const data = new FormData(ballot);
+    data.append('ml-submit', '1');
+    data.append('anticsrf', 'true');
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+    msg.textContent = '';
+    try {
+      const res = await fetch('https://assets.mailerlite.com/jsonp/2620420/forms/204268883107907236/subscribe', { method: 'POST', body: data });
+      const out = await res.json();
+      if (!out.success) throw new Error('rejected');
+      ballot.querySelector('[data-pick]').textContent = data.get('fields[christmas_title]');
+      ballot.classList.add('is-done');
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = 'Cast my vote';
+      msg.textContent = 'That didn’t go through. Check the address and try again.';
+    }
+  });
 </script>
 </body>
 </html>
